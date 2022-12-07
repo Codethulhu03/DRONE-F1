@@ -4,4 +4,4 @@
 
 
 
-> The "stripped" branch now contains a minimized version of the current drone code for use in student projects.
+> This branch contains a minimized version of the current drone code for use in student projects.
