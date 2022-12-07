@@ -1,0 +1,8 @@
+**/*.py?
+**/*.vpp.bak_*
+**/*.vpp.lck
+**/.idea/**
+simulation/AirSimEnvironments/*
+.vscode
+.venv
+home

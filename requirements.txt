@@ -1,0 +1,16 @@
+pyyaml~=6.0
+pyserial~=3.5
+#wheel~=0.37.1
+
+### CLI ###
+readchar~=3.0.5
+colorama~=0.4.4
+regex~=2021.11.10
+#############
+
+### AirSim ###
+# Note: You might need to install msgpackrpc manually with pip install msgpack-rpc-python
+msgpack-rpc-python~=0.4.1
+airsim~=1.6.0
+psutil~=5.9.0
+#############

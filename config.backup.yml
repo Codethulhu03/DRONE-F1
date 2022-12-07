@@ -1,0 +1,93 @@
+available:
+  channels:
+  - CommandChannelController
+  - NeighbourController
+  communication:
+  - UDP
+  controllers: []
+  digestions:
+  - NONE
+  - BYTES
+  evaluators:
+  - AirSimEvaluator
+  flight:
+  - FlightlessFlightController
+  - AirSimFlightController
+  sensors:
+  - AirSimSensors
+  unknown: []
+configuration:
+  AirSimEvaluator:
+    interval: 1.0
+  AirSimFlightController:
+    autoLaunchAirsim: false
+    environmentConfig:
+      airsimBinaryPath: ''
+      defineConfigHere: false
+      resolution:
+      - 1280
+      - 720
+      viewMode: FlyWithMe
+      wind:
+      - 0
+      - 0
+      - 0
+    forceCloseAirsimOnExit: false
+    interval: 1.0
+    ip: ''
+    name: UAV
+    port: 41451
+    sensorFrequency: 0.5
+    timeoutValue: 3600000
+    useEnvironmentHome: true
+  AirSimSensors:
+    interval: 1.0
+  CommandChannelController:
+    interval: 1.0
+  DigitalTwinController:
+    interval: 1.0
+  DigitalTwinRelay:
+    interval: 1.0
+  DroneEvaluator:
+    interval: 1.0
+  FlightlessFlightController:
+    interval: 1.0
+  GroundStationController:
+    interval: 1.0
+  MissionController:
+    interval: 1.0
+  MorseEvaluator:
+    interval: 1.0
+  MorseFlightController:
+    interval: 1.0
+  MorseSensor:
+    interval: 1.0
+  MovementEvaluator:
+    interval: 1.0
+  NeighbourController:
+    interval: 1.0
+  UDP:
+    broadcast-address: 255.255.255.255
+    digestion: NONE
+    interval: 1.0
+    p2p: false
+    port: 1337
+    target-address: 255.255.255.255
+  ZigBee:
+    baud: 230400
+    digestion: NONE
+    interval: 1.0
+    port: ''
+drone:
+  descriptor: ''
+  home: (0.0, 0.0)
+  id: -1
+mission: mission.yml
+modules:
+  channels: []
+  communication: []
+  controllers: []
+  evaluators: []
+  flight: FlightlessFlightController
+  sensors: []
+  unknown: []
