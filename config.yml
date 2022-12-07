@@ -64,7 +64,9 @@ modules:
   channels: []
   communication: []
   controllers: []
-  evaluators: []
-  flight: FlightlessFlightController
-  sensors: []
+  evaluators:
+    - AirSimEvaluator
+  flight: AirSimFlightController
+  sensors:
+    - AirSimSensors
   unknown: []

@@ -1,3 +1,5 @@
+from communication.Command import Command
+from communication.CommandData import CommandData
 from compatibility.Bisect import insort
 from compatibility.Itertools import combinations
 from compatibility.Typing import Any, List, Union
@@ -6,6 +8,8 @@ from controller.Controller import Controller
 from drone.DroneData import DroneData
 from utils.ConfigurationData import ConfigurationData
 from utils.Logger import Logger
+from utils.events.EventDecorators import evaluate
+from utils.events.EventType import EventType
 from utils.events.Mediator import Mediator
 from utils.math.Vector import Vector3
 
@@ -292,3 +296,20 @@ class FlockController(Controller):
         else:
             speed: float = self.__uavSpeedMax
         return (speed + vfOwnVel.magnitude) / 2
+
+    # VV Decorator for event-handling if applicable VV
+    # @process(EventType.***)
+    @evaluate(EventType.COMMAND_CHANGE_COURSE)
+    def doStuff(self) -> CommandData:
+        newPosition: Vector3 = Vector3()
+        """ New position to go to """
+        speed: float = 1.0
+        """ Speed to go at (might need to be magnitude of Vector)"""
+        # VV Your code below VV
+        
+        # ^^ Your code above ^^
+        return CommandData(cmd=Command.CHANGE_COURSE, msg={"position": newPosition, "speed": speed})
+    
+    # Method for interval-based calls (e.g. every second)
+    def _process(self):
+        self.doStuff()
