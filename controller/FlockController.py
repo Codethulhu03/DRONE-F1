@@ -1,6 +1,6 @@
 from compatibility.Bisect import insort
 from compatibility.Itertools import combinations
-from compatibility.Typing import Any, List, Tuple, Union
+from compatibility.Typing import Any, List, Union
 from compatibility.Math import exp, acos, sin
 from controller.Controller import Controller
 from drone.DroneData import DroneData

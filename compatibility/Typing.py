@@ -4,8 +4,8 @@ available: bool = True
 try:
     from typing import (TypeVar as ttypevar, Callable as tcallable, Any as tany, Optional as toptional,
                         SupportsIndex as tsi, Collection as tcollection, ItemsView as tiv, List as tlist,
-                        Tuple as ttuple, Iterable as titerable, Union as tunion, Dict as tdict, get_origin as tgo,
-                        get_args as tga, Mapping as tmap, Type as ttype)
+                        Iterable as titerable, Union as tunion, Dict as tdict, get_origin as tgo, get_args as tga,
+                        Mapping as tmap, Type as ttype)
     
     TypeVar = ttypevar
     Callable = tcallable
@@ -15,7 +15,6 @@ try:
     Collection = tcollection
     ItemsView = tiv
     List = tlist
-    Tuple = ttuple
     Iterable = titerable
     Union = tunion
     Dict = tdict
@@ -34,7 +33,6 @@ except Exception:
     Collection = None
     ItemsView = None
     List = None
-    Tuple = None
     Iterable = None
     Union = None
     Dict = None
