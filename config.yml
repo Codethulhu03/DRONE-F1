@@ -35,7 +35,7 @@ configuration:
     forceCloseAirsimOnExit: false
     interval: 1.0
     ip: ''
-    name: UAV
+    name: ''
     port: 41451
     sensorFrequency: 0.5
     timeoutValue: 3600000
@@ -65,8 +65,8 @@ modules:
   communication: []
   controllers: []
   evaluators:
-    - AirSimEvaluator
+  - AirSimEvaluator
   flight: AirSimFlightController
   sensors:
-    - AirSimSensors
+  - AirSimSensors
   unknown: []

@@ -1,12 +1,14 @@
+
 available: bool = True
 try:
     from compatibility.Typing import Optional
     import airsim as airsimCompatability
     import airsim.types as airsimTypesLib
-    
+
     from utils.Data import Data
     from utils.Logger import Logger
-    
+    from utils.HiddenPrints import HiddenPrints
+
     airsim = airsimCompatability
     airsimTypes = airsimTypesLib
     
@@ -32,18 +34,13 @@ try:
             timeoutValue = self.__config["timeoutValue"]
             
             client = airsim.MultirotorClient(ip, port, timeoutValue)
-            # x = HiddenPrints()
-            # x.__enter__()
-            try:
-                # Broken at the moment, interfers with logger
-                client.confirmConnection()
-                # x.__exit__(None, None, None)
-            except Exception as e:
-                # x.__exit__(None, None, None)
-                self.__logger.write("Couldn't connect to Airsim. Reason: " + str(e))
-                return
-            # self.__logger.write("Connected to AirSim.")
-            # x.__exit__(None, None, None)
+            with HiddenPrints():
+                try:
+                    client.confirmConnection()
+                except Exception as e:
+                    self.__logger.write("Couldn't connect to Airsim. Reason: " + str(e))
+                    return
+                self.__logger.write("Connected to AirSim.")
             return client
     
     

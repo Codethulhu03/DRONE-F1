@@ -16,9 +16,7 @@ class EventDecoratorHelper:
     def get(t: type) -> dict[EventType, Callable]:
         h: dict[EventType, Callable] = {}
         for base in t.__bases__:
-            edh: dict[EventType, Callable] = EventDecoratorHelper.get(base)
-            edh.update(h)
-            h = edh
+            h.update(EventDecoratorHelper.get(base))
         h.update(EventDecoratorHelper.handlers.get(t.__name__, {}))
         EventDecoratorHelper.handlers[t.__name__] = h
         return h

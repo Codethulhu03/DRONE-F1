@@ -55,7 +55,8 @@ class Main(Executor):
                     self._logger.write("Trying again...")
         self.__uav.notify(Event(EventType.POWER_UP, self.__uav.data))
         if AirSimAvailable:
-            airsimClient.passArguments(self.__configuration.data.configuration("AirSimFlightController"), self._logger)
+            airsimClient.passArguments(self.__configuration.data.configuration("AirSimFlightController"),
+                                       Logger("AirSimClient"))
         self.__initializeModules()
         self.__uav.notify(Event(EventType.INITIALIZATION, self.__uav.data))
         sys.excepthook = self.__exceptionHook
@@ -158,22 +159,22 @@ class Main(Executor):
     
     @helptext("Send the next Waypoint for the drone", "Waypoint Coordinates | -r for relative Coordinates")
     def _goto(self, *args: str):
-        relative = False
+        relative: bool = False
         if "-r" in args:
             relative = True
             args = [x for x in args if x != "-r"]
         pos: Vector3 = Vector3([float(x) for x in args[:3]] + [0] * (3 - len(args))) + self.__uav.data.position * relative
-        dd = {"target": pos, "speed": 5}
+        dd: dict[str, Any] = {"target": pos, "speed": 5}
         self.__uav.notify(Event(EventType.COMMAND_CHANGE_COURSE, CommandData(cmd=Command.CHANGE_COURSE, msg=dd)))
 
 
 def main(*args: str):
     while not Main.KILL:
-        log = Logger("__main__")
-        l = len(args)
+        log: Logger = Logger("__main__")
+        l: int = len(args)
         if not l or not path.isfile(*args):
             log.write(f"Configuration file {'does not exist' * l}{'missing as argument' * (not l)}, using config.yml")
-            args = ("config.yml",)
+            args: tuple[str] = ("config.yml",)
         Main(*args)
 
 

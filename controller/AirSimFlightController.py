@@ -1,3 +1,5 @@
+from msgpackrpc.error import RPCError
+
 from compatibility.Subprocess import Popen
 from compatibility.Typing import Any, Optional
 from compatibility.AirSim import airsimClient, available
@@ -50,8 +52,11 @@ class AirSimFlightController(FlightController):
                 if self._config["autoLaunchAirsim"]:
                     self._launchAirSim()
                 self._airsim = airsimClient.getClient()
-                self._airsim.enableApiControl(
+                try:
+                    self._airsim.enableApiControl(
                         True, vehicle_name=self._config["name"])
+                except RPCError:
+                    self._airsim.enableApiControl(True)
                 if self._config["useEnvironmentHome"]:
                     geo = self._airsim.getHomeGeoPoint(
                             vehicle_name=self._config["name"])
