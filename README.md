@@ -11,3 +11,4 @@
   + ``` pip3 install -r requirements.txt ``` on linux
   + ``` pip install -r requirements.txt ``` on linux
   + Some IDEs are also able to install all requirements on demand
++ [Check this wiki page for information on adding functionality to this code](https://github.com/Codethulhu03/DRONE-F1/wiki/Adding-functionality-(coding-help))
