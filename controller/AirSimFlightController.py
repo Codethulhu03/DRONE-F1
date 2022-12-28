@@ -44,6 +44,7 @@ class AirSimFlightController(FlightController):
             FlightController.__init__(self, mediator, logger, configData)
             self._config = configData.ownArguments
             self.__connected = False
+            self._airsim: Optional[airsimClient] = None
         
         @process(EventType.INITIALIZATION)
         def _initialize(self, data: Optional[DroneData]):
@@ -56,6 +57,7 @@ class AirSimFlightController(FlightController):
                     self._airsim.enableApiControl(
                         True, vehicle_name=self._config["name"])
                 except RPCError:
+                    self._config["name"] = ""
                     self._airsim.enableApiControl(True)
                 if self._config["useEnvironmentHome"]:
                     geo = self._airsim.getHomeGeoPoint(
@@ -64,13 +66,14 @@ class AirSimFlightController(FlightController):
             return super()._initialize(data)
         
         def deactivate(self, kill: bool = False):
-            self._airsim.enableApiControl(False, vehicle_name=self._config["name"])
-            if self._config["forceCloseAirsimOnExit"]:
-                for proc in processIter():
-                    # check whether the process name matches
-                    if proc.name() == self._binaryName:
-                        proc.kill()
-                self._airsimProcess.kill()
+            if self._airsim:
+                self._airsim.enableApiControl(False, vehicle_name=self._config["name"])
+                if self._config["forceCloseAirsimOnExit"]:
+                    for proc in processIter():
+                        # check whether the process name matches
+                        if proc.name() == self._binaryName:
+                            proc.kill()
+                    self._airsimProcess.kill()
             FlightController.deactivate(self)
         
         def _launchAirSim(self):
