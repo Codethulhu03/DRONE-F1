@@ -23,7 +23,7 @@ class AirSimFlightController(FlightController):
     AVAILABLE: bool = available
     """ Whether the Module is available (imports were successful) """
     ARGS: dict[str, Any] = dict(FlightController.ARGS, **{
-            "name"                  : "UAV",
+            "name"                  : "",
             "ip"                    : "",
             "port"                  : 41451,
             "timeoutValue"          : 3600000,
@@ -54,9 +54,11 @@ class AirSimFlightController(FlightController):
                     self._launchAirSim()
                 self._airsim = airsimClient.getClient()
                 try:
+                    self._logger.print(f"{self._config['name']=}")
                     self._airsim.enableApiControl(
                         True, vehicle_name=self._config["name"])
                 except RPCError:
+                    self._logger.print(f"{self._config['name']=}")
                     self._config["name"] = ""
                     self._airsim.enableApiControl(True)
                 if self._config["useEnvironmentHome"]:
