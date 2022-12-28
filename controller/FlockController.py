@@ -311,5 +311,5 @@ class FlockController(Controller):
         return CommandData(cmd=Command.CHANGE_COURSE, msg={"position": newPosition, "speed": speed})
     
     # Method for interval-based calls (e.g. every second)
-    def _process(self):
+    def _postProcess(self):
         self.doStuff()
