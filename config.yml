@@ -4,7 +4,8 @@ available:
   - NeighbourController
   communication:
   - UDP
-  controllers: []
+  controllers:
+  - FlockController
   digestions:
   - NONE
   - BYTES
@@ -35,7 +36,7 @@ configuration:
     forceCloseAirsimOnExit: false
     interval: 1.0
     ip: ''
-    name: ''
+    name: UAV
     port: 41451
     sensorFrequency: 0.5
     timeoutValue: 3600000
@@ -46,6 +47,23 @@ configuration:
     interval: 1.0
   FlightlessFlightController:
     interval: 1.0
+  FlockController:
+    PositionTolerance: 1.0
+    UAVMaxSpeed: 2.0
+    filterSimilarity: true
+    flightStep: 10.0
+    flockArea: 200.0
+    flockDistance: 8.6
+    flockGroup: 1
+    flockHysteresis: 0.0
+    flockMaxDistance: 12.2
+    flockMinDistance: 5.0
+    interval: 1.0
+    membersFilter: true
+    membersLimit: 2
+    ownVelocityWeight: 0.5
+    potFieldWidth: 20.0
+    similarityThreshold: 25
   NeighbourController:
     interval: 1.0
   UDP:
