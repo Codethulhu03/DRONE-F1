@@ -20,7 +20,8 @@ class NeighbourController(ChannelController):
         self.__broadcastChannelMessage()
     
     @process(EventType.PACKET_RECEIVED)
-    def _recieveNeighbourData(self, data: Packet):
+    @evaluate(EventType.DRONE_DATA_UPDATE)
+    def _recieveNeighbourData(self, data: Packet) -> PartialDroneData:
         if data.commChannel != CommunicationChannels.NEIGHBOUR_CHANNEL:
             return
         payload: Data = data["payload"]
@@ -29,7 +30,4 @@ class NeighbourController(ChannelController):
         currentNeigbours = deepcopy(self._data["neigbours"])
         currentNeigbours[neigbourDroneData["id"]] = neigbourDroneData
         self._saveNeigbourData(currentNeigbours)
-    
-    @evaluate(EventType.DRONE_DATA_UPDATE)
-    def _saveNeigbourData(self, data: PartialDroneData) -> PartialDroneData:
         return data

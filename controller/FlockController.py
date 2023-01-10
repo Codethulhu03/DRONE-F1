@@ -6,9 +6,10 @@ from compatibility.Typing import Any, List, Union
 from compatibility.Math import exp, acos, sin
 from controller.Controller import Controller
 from drone.DroneData import DroneData
+from drone.PartialDroneData import PartialDroneData
 from utils.ConfigurationData import ConfigurationData
 from utils.Logger import Logger
-from utils.events.EventDecorators import evaluate
+from utils.events.EventDecorators import evaluate, process
 from utils.events.EventType import EventType
 from utils.events.Mediator import Mediator
 from utils.math.Vector import Vector3
@@ -297,19 +298,31 @@ class FlockController(Controller):
             speed: float = self.__uavSpeedMax
         return (speed + vfOwnVel.magnitude) / 2
 
+    @process(EventType.MOVEMENT_DATA_UPDATE)
+    @evaluate(EventType.FLOCK)
+    def dataProcess(self, data: PartialDroneData) -> DroneData:
+        cond: bool = False  # Change this so that there's no infinite "recursion" ~ Fishboy
+        if cond:
+            return DroneData(PartialDroneData.DEFAULTS())
+        return None
+
     # VV Decorator for event-handling if applicable VV
     # @process(EventType.***)
+    @process(EventType.FLOCK)
     @evaluate(EventType.COMMAND_CHANGE_COURSE)
-    def doStuff(self) -> CommandData:
+    def doStuff(self, data: DroneData) -> CommandData:
         newPosition: Vector3 = Vector3()
         """ New position to go to """
         speed: float = 1.0
         """ Speed to go at (might need to be magnitude of Vector)"""
+        self._logger.print("Hallo ich bin ein lockiger flockiger controller-boi")
+        self._logger.print(f"Meine Nachbarn: {self._data.neighbours}")
         # VV Your code below VV
         
         # ^^ Your code above ^^
-        return CommandData(cmd=Command.CHANGE_COURSE, msg={"position": newPosition, "speed": speed})
+        return CommandData(cmd=Command.CHANGE_COURSE, msg={"target": newPosition, "speed": speed})
     
     # Method for interval-based calls (e.g. every second)
     def _postProcess(self):
-        self.doStuff()
+        # self.doStuff()
+        pass

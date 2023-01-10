@@ -79,9 +79,11 @@ drone:
   id: -1
 mission: mission.yml
 modules:
-  channels: []
+  channels:
+  - NeighbourController
   communication: []
-  controllers: []
+  controllers:
+  - FlockController
   evaluators:
   - AirSimEvaluator
   flight: AirSimFlightController
