@@ -5,9 +5,9 @@ from utils.Data import Data
 
 
 class RawData(Data):
-    TYPES = dict(Data.TYPES, **{
-            "source": str
-            })
+    TYPES: dict[str, type] = {**Data.TYPES,
+                              "source": str
+                              }
     """ TYPES of underlying dict for checking validity of Instance (see :attribute:`utils.Data.Data.TYPES`) """
     
     def __init__(self, dataDict: Union[bytes, dict], source: str = None):

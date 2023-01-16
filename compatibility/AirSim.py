@@ -4,6 +4,8 @@ try:
     from compatibility.Typing import Optional
     import airsim as airsimCompatability
     import airsim.types as airsimTypesLib
+    from msgpackrpc.error import RPCError as airsimRPCError
+
 
     from utils.Data import Data
     from utils.Logger import Logger
@@ -11,7 +13,7 @@ try:
 
     airsim = airsimCompatability
     airsimTypes = airsimTypesLib
-    
+    RPCError = airsimRPCError
     
     class AirSimClient:
         
@@ -50,4 +52,5 @@ except Exception:
     print(f"Module not installed: {__name__}")
     airsim = None
     airsimTypes = None
-    AirSimClient = None
+    airsimClient = None
+    RPCError = None

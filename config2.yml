@@ -10,10 +10,13 @@ available:
   digestions:
   - NONE
   - BYTES
-  evaluators: []
+  evaluators:
+  - AirSimEvaluator
   flight:
   - FlightlessFlightController
-  sensors: []
+  - AirSimFlightController
+  sensors:
+  - AirSimSensors
   unknown: []
 configuration:
   AirSimEvaluator:

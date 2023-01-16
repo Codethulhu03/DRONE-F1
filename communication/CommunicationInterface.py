@@ -14,7 +14,7 @@ from utils.events.Mediator import Mediator  # Mediator for event handling
 class CommunicationInterface(Module):
     """ Interface to the respective communication protocol/method (e.g. ZigBee, UDP, etc.) """
     
-    ARGS: dict[str, Any] = dict(Module.ARGS, **{"digestion": "NONE"})
+    ARGS: dict[str, Any] = {**Module.ARGS, "digestion": "NONE"}
     """ Arguments for the configuration file """
     
     def __init__(self, mediator: Mediator, logger: Logger, configData: ConfigurationData,
@@ -59,7 +59,6 @@ class CommunicationInterface(Module):
         self._connected = False
     
     @process(EventType.SEND_PACKET)
-    @evaluate(EventType.PACKET_SENT)
     def _transmit(self, data: Packet) -> Optional[Packet]:
         """
         Transmit a packet
@@ -68,7 +67,7 @@ class CommunicationInterface(Module):
         :return: The packet if it was transmitted, None otherwise
         """
         # Set packets communication interface attribute if not already set
-        data.commInterface = type(self).__name__ if data.commInterface is None else data.commInterface
+        data.commInterface = type(self).__name__ if data.commInterface == "*" else data.commInterface
         # Stop if the packets communication interface doesn't match this communication interface
         if data.commInterface is not type(self).__name__:
             return None

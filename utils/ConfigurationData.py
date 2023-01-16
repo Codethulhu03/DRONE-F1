@@ -4,11 +4,11 @@ from utils.Data import Data
 
 
 class ConfigurationData(Data):
-    TYPES = dict(Data.TYPES, **{
+    TYPES: dict[str, type] = {**Data.TYPES,
             "mission"      : str,
             "drone"        : dict,
             "configuration": dict
-            })
+            }
     """ TYPES of underlying dict for checking validity of Instance (see :attribute:`utils.Data.Data.TYPES`) """
     
     @property

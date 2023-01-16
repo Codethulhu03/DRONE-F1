@@ -10,10 +10,13 @@ available:
   digestions:
   - NONE
   - BYTES
-  evaluators: []
+  evaluators:
+  - AirSimEvaluator
   flight:
   - FlightlessFlightController
-  sensors: []
+  - AirSimFlightController
+  sensors:
+  - AirSimSensors
   unknown: []
 configuration:
   AirSimEvaluator:
@@ -42,7 +45,6 @@ configuration:
   AirSimSensors:
     interval: 1.0
   CommandChannelController:
-    commInterface: '*'
     interval: 1.0
   FlightlessFlightController:
     interval: 1.0
@@ -67,9 +69,8 @@ configuration:
     digestion: NONE
     interval: 1.0
     mediator-port: 1337
-    own-port: 1338
+    own-port: 1340
   NeighbourChannelController:
-    commInterface: '*'
     interval: 1.0
   UDP:
     broadcast-address: 255.255.255.255
@@ -84,8 +85,10 @@ drone:
   id: -1
 mission: mission.yml
 modules:
-  channels: []
-  communication: []
+  channels:
+  - NeighbourChannelController
+  communication:
+  - LocalUDP
   controllers: []
   evaluators: []
   flight: FlightlessFlightController

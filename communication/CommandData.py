@@ -9,10 +9,10 @@ from utils.Data import Data  # Data class for "msg" element
 class CommandData(Data):
     """ Class for storing command data: command-type and message (arguments) """
     
-    TYPES = dict(Data.TYPES, **{
+    TYPES: dict[str, type] = {**Data.TYPES,
             "cmd": str,  # Command type
             "msg": Data  # Message (arguments)
-            })
+            }
     """ TYPES of underlying dict for checking validity of Instance (see :attribute:`utils.Data.Data.TYPES`) """
     
     def __init__(self, dataDict: Union[bytes, dict[Any, Any]] = None, cmd: Command = None,

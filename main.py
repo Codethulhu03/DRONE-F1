@@ -6,7 +6,7 @@ from communication.Command import Command
 from communication.CommandData import CommandData
 from compatibility.ConsoleColor import ConsoleColor as CC, ConsoleStyle as CS, wrap
 from compatibility.Itertools import chain
-from compatibility.OS import path
+from compatibility.OS import path, os
 from compatibility.Sys import sys, argv
 from compatibility.Time import sleep
 from compatibility.Types import TracebackType
@@ -22,7 +22,6 @@ from utils.Logger import Logger
 from utils.events.Event import Event
 from utils.events.EventType import EventType
 from utils.math.Vector import Vector3
-
 
 class Main(Executor):
     VERSION: str = "0.0.0"
@@ -179,4 +178,9 @@ def main(*args: str):
 
 
 if __name__ == "__main__":
+    if not os.environ.get("PYTHONHASHSEED"):
+        os.environ["PYTHONHASHSEED"] = "25565"
+        os.execv(sys.executable, ["python3"] + sys.argv)
     main(*argv[1:])
+    os.environ["PYTHONHASHSEED"] = "random"
+

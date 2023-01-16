@@ -11,7 +11,7 @@ from utils.math.Vector import Vector3
 
 
 class PartialDroneData(Data):
-    TYPES = dict(Data.TYPES, **{
+    TYPES: dict[str, type] = {**Data.TYPES,
             "id"              : int,
             "position"        : Vector3,  # Relative to start [Δlat, Δlng, Δalt] in m
             "coordinates"     : Coordinates,  # The coordinates of the drone
@@ -26,7 +26,7 @@ class PartialDroneData(Data):
             "state"           : str,
             "flockGroup"      : int,
             "neighbours"       : dict
-            })
+            }
     """ TYPES of underlying dict for checking validity of Instance (see :attribute:`utils.Data.Data.TYPES`) """
     
     @staticmethod

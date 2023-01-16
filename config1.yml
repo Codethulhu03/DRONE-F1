@@ -10,10 +10,13 @@ available:
   digestions:
   - NONE
   - BYTES
-  evaluators: []
+  evaluators:
+  - AirSimEvaluator
   flight:
   - FlightlessFlightController
-  sensors: []
+  - AirSimFlightController
+  sensors:
+  - AirSimSensors
   unknown: []
 configuration:
   AirSimEvaluator:
@@ -84,8 +87,10 @@ drone:
   id: -1
 mission: mission.yml
 modules:
-  channels: []
-  communication: []
+  channels:
+  - NeighbourChannelController
+  communication:
+  - LocalUDP
   controllers: []
   evaluators: []
   flight: FlightlessFlightController

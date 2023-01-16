@@ -3,7 +3,7 @@ from compatibility.Typing import Any, get_origin, get_args, Callable, Union
 from compatibility.Math import log2
 from compatibility.Json import dumps, loads
 
-DICT_TYPES: list[type] = [str, int, float]
+DICT_TYPES: list[type] = [str, int]
 
 
 def toBytes(d: Any) -> bytes:

@@ -8,7 +8,7 @@ import utils.Conversion as Conversion
 
 
 class Data:
-    TYPES: dict[str, type] = dict()
+    TYPES: dict[str, type] = {}
     
     def __init__(self, dataDict: Union[bytes, dict[Any, Any]], *args, **kwargs):
         if isinstance(dataDict, bytes):
@@ -66,7 +66,10 @@ class Data:
     def __setitem__(self, key: Any, value: Any):
         if key in self._data:
             self._data[key] = value
-    
+
+    def __delitem__(self, key):
+        del self._data[key]
+
     def setdefault(self, key: Any, default: Any) -> Any:
         return self._data.setdefault(key, default)
     

@@ -2,6 +2,7 @@ from __future__ import annotations  # Use "CommunicationChannel" in type annotat
 
 from compatibility.Enum import Enum  # super class for enums
 from communication.Packet import Packet  # Packet class for "packing" Data following the channels specification
+from drone.PartialDroneData import PartialDroneData # PartialDroneData for setting payload type
 from utils.Data import Data  # Data class for annotating "pack"
 
 
@@ -20,21 +21,21 @@ class CommunicationChannel:
         self.__filter: tuple[str, ...] = args
         """ Filter for the channel """
     
-    def pack(self, data: Data) -> Packet:
+    def pack(self, data: Data, commInterface: str) -> Packet:
         """
         Pack data into a packet following the channels specification
         
         :param data: data to pack
         :return: packet with packed data
         """
-        return Packet({k: v for k, v in data.items if k in self.__filter or not self.__filter},
-                      commChannel=self.__descriptor, commInterface="UDP")
-    
+        return Packet(PartialDroneData({k: v for k, v in data.items if k in self.__filter or not self.__filter}),
+                      commChannel=self.__descriptor, commInterface=commInterface)
+
     @property
     def descriptor(self) -> str:
         """
         Get descriptor of the channel
-        
+
         :return: descriptor of the channel
         """
         return self.__descriptor
@@ -79,7 +80,9 @@ class CommunicationChannels(Enum):
         CommunicationChannel("DIGITAL_TWIN", )
     """ Communication channel for the drone <-> digital-twin communication """
     NEIGHBOUR_CHANNEL = \
-        CommunicationChannel("NEIGHBOUR", )
+        CommunicationChannel("NEIGHBOUR",
+                             "id", "position", "coordinates", "rotation", "acceleration", "velocity", "angularVelocity",
+                             "startingPosition", "battery", "startTime","state", "flockGroup")
     """ Communication channel for the drone <-> neighbour communication """
     
     def pack(self, data: Data) -> Packet:

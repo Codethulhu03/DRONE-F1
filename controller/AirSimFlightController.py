@@ -1,11 +1,9 @@
-from msgpackrpc.error import RPCError
-
 from compatibility.Subprocess import Popen
 from compatibility.Typing import Any, Optional
-from compatibility.AirSim import airsimClient, available
+from compatibility.AirSim import airsimClient, available, RPCError
 from compatibility.Json import dumps
 from compatibility.OS import os
-from compatibility.Psutil import processIter
+from compatibility.Psutil import processIter, available as psavailable
 from communication.CommandData import CommandData
 from controller.FlightController import FlightController
 from drone import DroneData
@@ -22,7 +20,7 @@ from utils.math.Coordinates import Coordinates
 class AirSimFlightController(FlightController):
     AVAILABLE: bool = available
     """ Whether the Module is available (imports were successful) """
-    ARGS: dict[str, Any] = dict(FlightController.ARGS, **{
+    ARGS: dict[str, Any] = {**FlightController.ARGS,
             "name"                  : "",
             "ip"                    : "",
             "port"                  : 41451,
@@ -37,7 +35,8 @@ class AirSimFlightController(FlightController):
                     "defineConfigHere": False,
                     "viewMode"        : "FlyWithMe",
                     "wind"            : [0, 0, 0]
-                    }})
+                    }
+            }
     """ Arguments for the configuration file """
     if AVAILABLE:
         def __init__(self, mediator: Mediator, logger: Logger, configData: ConfigurationData):
@@ -68,7 +67,7 @@ class AirSimFlightController(FlightController):
         def deactivate(self, kill: bool = False):
             if self._airsim:
                 self._airsim.enableApiControl(False, vehicle_name=self._config["name"])
-                if self._config["forceCloseAirsimOnExit"]:
+                if self._config["forceCloseAirsimOnExit"] and psavailable:
                     for proc in processIter():
                         # check whether the process name matches
                         if proc.name() == self._binaryName:

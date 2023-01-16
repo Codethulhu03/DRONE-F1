@@ -3,7 +3,7 @@ from compatibility.Difflib import get_close_matches as closestMatch
 from compatibility.Functools import wraps
 from compatibility.Getpass import getuser
 from compatibility.Platform import system
-from compatibility.Readchar import readkey, key as KEY
+from compatibility.Readchar import readkey, key as KEY, available
 from compatibility.Regex import match as reMatch, IGNORECASE as reIgnoreCase, error as reError
 from compatibility.Socket import gethostname
 from compatibility.Sys import stdout, stdin, version
@@ -15,9 +15,9 @@ from utils.Logger import Logger, _Logging
 try:
     from compatibility.Termios import tcgetattr, error as termiosError
     
-    USE_TERMIOS = system() != "Windows"
+    USE_TERMIOS: bool = available and system() != "Windows"
 except ImportError:
-    USE_TERMIOS = False
+    USE_TERMIOS: bool = False
     termiosError = NotImplementedError
     
     
@@ -140,12 +140,12 @@ class CLI:
         if self.__useOwn:
             try:
                 tcgetattr(stdin.fileno())
-                self.__run()
+                self.__postProcess()
                 return
             except termiosError:
                 pass
         self.__useOwn = False
-        self.__run()
+        self.__postProcess()
     
     def stop(self):
         self.__running = False
@@ -154,7 +154,7 @@ class CLI:
         self.__logger.log(consoleInput)
         self.__exe(consoleInput)
     
-    def __run(self):
+    def __postProcess(self):
         while self.__running:
             consoleInput = self.input(self.__prompt, set(_Helper.helpDict.keys()))
             if consoleInput:

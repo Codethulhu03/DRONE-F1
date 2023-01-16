@@ -1,6 +1,9 @@
 from __future__ import annotations  # for "Packet" type hints
 
+from compatibility.Json import dumps
 from compatibility.Typing import Any, Union  # for type hints in __init__
+
+from drone.PartialDroneData import PartialDroneData  # for "payload" type hint
 
 import utils.Conversion as Conversion  # for converting to and from bytes
 from utils.Data import Data  # Base class for "Data" structures
@@ -9,11 +12,11 @@ from utils.Data import Data  # Base class for "Data" structures
 class Packet(Data):
     """ Class for communication packets """
     
-    TYPES: dict[str, type] = dict(Data.TYPES, **{
+    TYPES: dict[str, type] = {**Data.TYPES,
             "commChannel"  : str,
             "commInterface": str,
-            "payload"      : Data
-            })
+            "payload"      : PartialDroneData  # TODO: change to "Data" and implement more intelligent system
+            }
     """ TYPES of underlying dict for checking validity of Instance (see :attribute:`utils.Data.Data.TYPES`) """
     
     def __init__(self, payload: Union[dict[str, Any], bytes], commInterface: str = "",
@@ -25,13 +28,20 @@ class Packet(Data):
         :param commInterface: communication interface of the packet (not required if given in payload)
         :param commChannel: communication channel of the packet (not required if given in payload)
         """
-        data: dict[str, Any] = dict()
+        data: dict[str, Any] = {}
         if isinstance(payload, (bytes, bytearray)):  # set __bytes if data given as bytes instance
             self.__bytes: bytes = payload
-            data["payload"] = payload
+            try:
+                fromjson: dict[str, Any] = Packet._jsonDict(Packet.TYPES, payload)
+                data["payload"] = fromjson["payload"]
+                commChannel = fromjson["commChannel"]
+            except Exception as e:
+                data["payload"] = Data(payload)
         else:
             self.__bytes: bytes = None
-            data["payload"] = Data(payload)
+            if not isinstance(payload, Data):
+                payload = Data(payload)
+            data["payload"] = payload
         if commChannel or "commChannel" not in data:
             data["commChannel"] = commChannel
         else:
@@ -66,7 +76,8 @@ class Packet(Data):
             cI: str = self.commInterface
             self.commChannel = hash(cC)  # Only send communication channel hash
             del self._data["commInterface"]  # Don't send communication interface name
-            self.__bytes = super().bytes  # Use Data class' conversion and save it
+            self._data["type"] = hash(type(self.payload).__name__)  # Send type of payload
+            self.__bytes = Conversion.jsonDumps(self)
             self.commChannel = cC  # Restore communication channel name
             self.commChannel = cI  # Restore communication interface name
         return self.__bytes

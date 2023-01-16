@@ -10,10 +10,10 @@ from utils.math.Vector import Vector3
 
 
 class SensorData(Data):
-    TYPES = dict(Data.TYPES, **{
+    TYPES: dict[str, type] = {**Data.TYPES,
             "sensor"   : str,
             "timestamp": float
-            })
+            }
     """ TYPES of underlying dict for checking validity of Instance (see :attribute:`utils.Data.Data.TYPES`) """
     
     SENSOR_SPECIFIC = {

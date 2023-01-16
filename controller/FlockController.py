@@ -18,7 +18,7 @@ from utils.math.Vector import Vector3
 class FlockController(Controller):
     """ Controller class for flocking/collision avoidance """
     
-    ARGS: dict[str, Any] = dict(Controller.ARGS, **{
+    ARGS: dict[str, Any] = {**Controller.ARGS,
             "flockGroup"         : 1,
             "filterSimilarity"   : True,
             "membersFilter"      : True,
@@ -34,7 +34,7 @@ class FlockController(Controller):
             "flockMaxDistance"   : 12.2,
             "potFieldWidth"      : 20.0,
             "flightStep"         : 10.0,
-            })
+            }
     """ Arguments for the configuration file """
     
     def __init__(self, mediator: Mediator, logger: Logger, configData: ConfigurationData):

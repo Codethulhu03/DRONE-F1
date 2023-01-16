@@ -29,7 +29,7 @@ class ByteDigestion(PacketDigestion):
         data = Conversion.dataDictFromBytes(t, packet.bytes)
         from communication.CommunicationChannel import CommunicationChannels  # for getting channel name from hash
         # Convert hash to channel name
-        data["commChannel"] = next((c for c in CommunicationChannels if hash(c.name) == data["commChannel"]), None).name
+        data["commChannel"] = next((c for c in CommunicationChannels if hash(c.value) == data["commChannel"]), None).name
         p = Packet(data, packet.commInterface, packet.commChannel)
         p.bytes = packet.bytes
         return p

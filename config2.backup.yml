@@ -10,37 +10,15 @@ available:
   digestions:
   - NONE
   - BYTES
-  evaluators: []
+  evaluators:
+  - AirSimEvaluator
   flight:
   - FlightlessFlightController
-  sensors: []
+  - AirSimFlightController
+  sensors:
+  - AirSimSensors
   unknown: []
 configuration:
-  AirSimEvaluator:
-    interval: 1.0
-  AirSimFlightController:
-    autoLaunchAirsim: false
-    environmentConfig:
-      airsimBinaryPath: ''
-      defineConfigHere: false
-      resolution:
-      - 1280
-      - 720
-      viewMode: FlyWithMe
-      wind:
-      - 0
-      - 0
-      - 0
-    forceCloseAirsimOnExit: false
-    interval: 1.0
-    ip: ''
-    name: ''
-    port: 41451
-    sensorFrequency: 0.5
-    timeoutValue: 3600000
-    useEnvironmentHome: true
-  AirSimSensors:
-    interval: 1.0
   CommandChannelController:
     commInterface: '*'
     interval: 1.0

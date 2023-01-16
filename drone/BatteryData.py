@@ -5,11 +5,11 @@ from utils.Data import Data
 
 
 class BatteryData(Data):
-    TYPES = dict(Data.TYPES, **{
+    TYPES: dict[str, type] = {**Data.TYPES,
             "level"  : int,
             "voltage": float,
             "current": float
-            })
+            }
     """ TYPES of underlying dict for checking validity of Instance (see :attribute:`utils.Data.Data.TYPES`) """
     
     def __init__(self, dataDict: dict[Any, Any] = None, level: int = None, voltage: float = None, current: float = None,
@@ -30,8 +30,7 @@ class BatteryData(Data):
     
     @staticmethod
     def fromJson(jsonString: str) -> BatteryData:
-        dataDict = BatteryData._jsonDict(BatteryData.TYPES, jsonString)
-        return BatteryData(dataDict)
+        return BatteryData(BatteryData._jsonDict(BatteryData.TYPES, jsonString))
     
     @property
     def current(self) -> float:

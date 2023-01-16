@@ -11,23 +11,19 @@ from utils.events.EventType import EventType
 from utils.events.Mediator import Mediator
 
 
-class NeighbourController(ChannelController):
+class NeighbourChannelController(ChannelController):
     
     def __init__(self, mediator: Mediator, logger: Logger, configData: ConfigurationData):
         super().__init__(mediator, logger, configData, CommunicationChannels.NEIGHBOUR_CHANNEL)
-    
-    def _run(self):
-        self.__broadcastChannelMessage()
-    
+
     @process(EventType.PACKET_RECEIVED)
     @evaluate(EventType.DRONE_DATA_UPDATE)
     def _recieveNeighbourData(self, data: Packet) -> PartialDroneData:
-        if data.commChannel != CommunicationChannels.NEIGHBOUR_CHANNEL:
+        if data.commChannel != CommunicationChannels.NEIGHBOUR_CHANNEL.name:
             return
-        payload: Data = data["payload"]
-        del payload["neighbours"]  # Otherwise it would be a circular reference
-        neigbourDroneData = PartialDroneData(payload)
-        currentNeigbours = deepcopy(self._data["neigbours"])
-        currentNeigbours[neigbourDroneData["id"]] = neigbourDroneData
-        self._saveNeigbourData(currentNeigbours)
-        return data
+        neighbourDroneData: PartialDroneData = data["payload"]
+        currentNeigbours: dict = {"neighbours": self._data["neighbours"]}
+        currentNeigbours["neighbours"][neighbourDroneData["id"]] = neighbourDroneData
+        self._logger.print(currentNeigbours)
+        #self._saveNeighbourData(currentNeigbours)
+        return None
