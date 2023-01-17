@@ -18,18 +18,19 @@ class ChannelController(Controller):
 
     def __init__(self, mediator: Mediator, logger: Logger, configData: ConfigurationData,
                  channel: CommunicationChannels,
-                 processingMode: ProcessingMode = ProcessingMode.ONE, interruptable: bool = True):
-        super().__init__(mediator, logger, configData, processingMode, interruptable)
+                 processingMode: ProcessingMode = ProcessingMode.ONE):
+        super().__init__(mediator, logger, configData, processingMode)
         if isinstance(channel, CommunicationChannels):
             channel = channel.value
         self._channel: CommunicationChannel = channel
         self._commInterface: str = self._configData.ownArguments["commInterface"]
     
-    def _postProcess(self):
+    def _asyncProcess(self):
         self.__broadcastChannelMessage()
 
     @evaluate(EventType.SEND_PACKET)
     def __broadcastChannelMessage(self) -> Packet:
         if self._data:
-            return self._channel.pack(self._data, self._commInterface)
+            packet: Packet = self._channel.pack(self._data, self._commInterface)
+            return packet
         return None

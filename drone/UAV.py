@@ -1,7 +1,8 @@
 from compatibility.Typing import Callable
-from compatibility.Thread import Thread, Condition
+from compatibility.Thread import Thread, Condition, osPriority, PriorityClass
 from drone.DroneData import DroneData
 from drone.PartialDroneData import PartialDroneData
+from utils.ConfigurationData import ConfigurationData
 from utils.events.Event import Event
 from utils.events.EventType import EventType
 from utils.events.Mediator import Mediator
@@ -10,13 +11,13 @@ from utils.events.Notifiable import Notifiable
 
 class UAV(Thread, Mediator):
     
-    def __init__(self):
+    def __init__(self, configData: ConfigurationData):
         Thread.__init__(self)
         Mediator.__init__(self)
         self.__powered: bool = True
         self.__active: bool = False
         self.__cond: Condition = Condition()
-        self.__data: DroneData = DroneData(PartialDroneData.DEFAULTS())
+        self.__data: DroneData = DroneData(PartialDroneData.DEFAULTS(configData))
     
     def __initialize(self):
         pass
@@ -28,6 +29,7 @@ class UAV(Thread, Mediator):
     def activate(self):
         self.__active = True
         try:
+            osPriority(PriorityClass.REALTIME)
             self.start()
         except RuntimeError:
             pass

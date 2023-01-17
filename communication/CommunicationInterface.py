@@ -1,6 +1,7 @@
 from communication.PacketDigestion import PacketDigestion  # Digestion of communication packets
 from communication.PacketDigestions import PacketDigestions  # Enum for getting configured PacketDigestion
 from compatibility.Typing import Any, Optional  # Type hints
+from compatibility.Thread import PriorityClass  # Priority class for threads
 from communication.Packet import Packet  # Data structure for communication packets
 from drone.Module import Module  # Base class for all modules
 from utils.ConfigurationData import ConfigurationData  # for reading attributes from config file
@@ -18,7 +19,7 @@ class CommunicationInterface(Module):
     """ Arguments for the configuration file """
     
     def __init__(self, mediator: Mediator, logger: Logger, configData: ConfigurationData,
-                 processingMode: ProcessingMode = ProcessingMode.ONE, interruptable: bool = True):
+                 processingMode: ProcessingMode = ProcessingMode.ONE):
         """
         Initialize the communication interface
         
@@ -26,15 +27,16 @@ class CommunicationInterface(Module):
         :param logger: The logger to use
         :param configData: The configuration data used to set the PacketDigestion
         :param processingMode: The processing mode to use (default: ONE) (see ProcessingMode or Module)
-        :param interruptable: Whether the module can be interrupted (default: True) (see Module)
-        
+
         .. seealso:: :class:`utils.events.EventProcessor.ProcessingMode`, :meth:`drone.Module.Module.__init__`
         """
-        super().__init__(mediator, logger, configData, processingMode, interruptable)  # Initialize the module
+        super().__init__(mediator, logger, configData, processingMode)  # Initialize the module
         self._connected: bool = False
         """ Whether the communication interface is connected to the hardware """
         self._digestion: PacketDigestion = PacketDigestions[configData.ownArguments["digestion"]].value
         """ The digestion to use for the packets """
+        self._priority: PriorityClass = PriorityClass.VERY_HIGH
+        """ The priority of the thread (see Module and PriorityClass) """
     
     def activate(self):
         """ Activate the communication interface module """
@@ -67,7 +69,8 @@ class CommunicationInterface(Module):
         :return: The packet if it was transmitted, None otherwise
         """
         # Set packets communication interface attribute if not already set
-        data.commInterface = type(self).__name__ if data.commInterface == "*" else data.commInterface
+        if not data.commInterface or data.commInterface == "*":
+            data.commInterface = type(self).__name__
         # Stop if the packets communication interface doesn't match this communication interface
         if data.commInterface is not type(self).__name__:
             return None

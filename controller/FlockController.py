@@ -76,6 +76,8 @@ class FlockController(Controller):
         self.__minDistFlock: float = 1000
         self.__maxDistFlock: float = -1000
 
+        self.__oldData: dict[int, PartialDroneData] = {}
+
     def buildFlock(self):
         """
         Create the flock
@@ -298,31 +300,37 @@ class FlockController(Controller):
             speed: float = self.__uavSpeedMax
         return (speed + vfOwnVel.magnitude) / 2
 
-    @process(EventType.MOVEMENT_DATA_UPDATE)
-    @evaluate(EventType.FLOCK)
-    def dataProcess(self, data: PartialDroneData) -> DroneData:
-        cond: bool = False  # Change this so that there's no infinite "recursion" ~ Fishboy
-        if cond:
-            return DroneData(PartialDroneData.DEFAULTS())
-        return None
 
     # VV Decorator for event-handling if applicable VV
     # @process(EventType.***)
-    @process(EventType.FLOCK)
+    @process(EventType.DRONE_DATA_UPDATE)
     @evaluate(EventType.COMMAND_CHANGE_COURSE)
-    def doStuff(self, data: DroneData) -> CommandData:
+    def doStuff(self, data: PartialDroneData) -> CommandData:
+        cond: bool = "neighbours" in data and str(data["neighbours"]) != str(self.__oldData)
+        """ condition to prevent infinite 'recursion' ~ Fishboy """
+        if not cond:
+            return None
+
+        self.__oldData = data["neighbours"]
+        for neighbour in data["neighbours"].values():
+            if (neighbour["position"] - self._data["position"]).magnitude < self.__flockMaxDistance:
+                # distanz des nachbarn im flock bereich
+                self._logger.print(f"Flock: neighbour-ids in flock range: {neighbour['id']}")
+
         newPosition: Vector3 = Vector3()
         """ New position to go to """
         speed: float = 1.0
         """ Speed to go at (might need to be magnitude of Vector)"""
-        self._logger.print("Hallo ich bin ein lockiger flockiger controller-boi")
-        self._logger.print(f"Meine Nachbarn: {self._data.neighbours}")
+        self._logger.print(f"Neighbours: {data['neighbours']}")
         # VV Your code below VV
-        
+        # self.buildFlock()
+        # newPosition, speed = self.flyFlock()
         # ^^ Your code above ^^
-        return CommandData(cmd=Command.CHANGE_COURSE, msg={"target": newPosition, "speed": speed})
-    
+
+        # return CommandData(cmd=Command.CHANGE_COURSE, msg={"target": newPosition, "speed": speed})
+        return None
+
     # Method for interval-based calls (e.g. every second)
-    def _postProcess(self):
+    def _asyncProcess(self):
         # self.doStuff()
         pass

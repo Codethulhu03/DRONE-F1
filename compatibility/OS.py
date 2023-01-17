@@ -1,7 +1,9 @@
+from compatibility.NotImplemented import notImplemented
+
 available: bool = True
 try:
     import os as osComp
-    
+
     os = osComp
     devnull = os.devnull
     path = os.path
@@ -11,3 +13,4 @@ except Exception:
     os = None
     devnull = None
     path = None
+    osPriority = notImplemented

@@ -1,5 +1,5 @@
 from compatibility.Typing import Any, Optional  # Type hints
-from compatibility.Socket import socket, AF_INET, SOCK_DGRAM, SOL_SOCKET, SO_BROADCAST, available
+from compatibility.Socket import socket, AF_INET, SOCK_DGRAM, SOL_SOCKET, SO_BROADCAST, available, SHUT_RDWR
 from compatibility.Thread import Thread
 from compatibility.UUID import uuidStr
 
@@ -84,12 +84,13 @@ class UDP(CommunicationInterface):
         
         def _disconnect(self):
             """ Disconnect from the Socket """
+            super()._disconnect()
             try:
+                self.__socket.shutdown(SHUT_RDWR)
                 self.__socket.close()
             except Exception:
                 pass
-            super()._disconnect()
-        
+
         def _rcvThreadStart(self):
             """ Start the receiving thread """
             while self._connected:

@@ -32,7 +32,6 @@ class Main(Executor):
         super().__init__(Logger())
         Main.EXIT_CALL = self._exit
         self.__cli = CLI(self, self._logger)
-        self.__uav: UAV = UAV()
         self.__modules: dict[str, list[Module]] = {
                 "flight"       : [],
                 "channels"     : [],
@@ -52,6 +51,7 @@ class Main(Executor):
                     self._exit()
                 else:
                     self._logger.write("Trying again...")
+        self.__uav: UAV = UAV(self.__configuration.data)
         self.__uav.notify(Event(EventType.POWER_UP, self.__uav.data))
         if AirSimAvailable:
             airsimClient.passArguments(self.__configuration.data.configuration("AirSimFlightController"),
@@ -65,6 +65,7 @@ class Main(Executor):
                 thread.join()
             except RuntimeError:
                 pass
+        sleep(0.5)
     
     def __initializeModules(self):
         moduleCollection: dict[str, set[str]] = self.__configuration.moduleCollection
@@ -114,14 +115,14 @@ class Main(Executor):
     def _stop(self, *args: str, msg: str = "STOPPING...", kill: bool = False):
         modules = [x for moduleList in self.__modules.values() for x in moduleList if
                    not args or type(x).__name__ in args]
+        self.__uav.deactivate()
         if modules:
             self._logger.print(wrap(msg, CC.F.RED, CS.BRIGHT))
             sleep(1)
             for module in modules:
                 module.deactivate(kill)
         sleep(1)
-        self.__uav.deactivate()
-    
+
     @helptext("reboot the program")
     def _reboot(self, msg: str = "REBOOTING..."):
         self.__uav.notify(Event(EventType.POWER_DOWN, self.__uav.data))
@@ -180,7 +181,10 @@ def main(*args: str):
 if __name__ == "__main__":
     if not os.environ.get("PYTHONHASHSEED"):
         os.environ["PYTHONHASHSEED"] = "25565"
-        os.execv(sys.executable, ["python3"] + sys.argv)
+        os.execv(sys.executable, [sys.executable, *sys.argv])  # restart python shell to apply the new seed
+    print(f"[__main__]  Python hash seed: {os.environ.get('PYTHONHASHSEED')}")
+    print(f"[__main__]  Python hash test: {hash('test')=}")
+    print(f"[__main__]  If the hash values are different, communication won't work - need to stop using hashes at some point")
     main(*argv[1:])
     os.environ["PYTHONHASHSEED"] = "random"
 

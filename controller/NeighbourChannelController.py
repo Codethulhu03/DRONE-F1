@@ -22,8 +22,6 @@ class NeighbourChannelController(ChannelController):
         if data.commChannel != CommunicationChannels.NEIGHBOUR_CHANNEL.name:
             return
         neighbourDroneData: PartialDroneData = data["payload"]
-        currentNeigbours: dict = {"neighbours": self._data["neighbours"]}
+        currentNeigbours: dict = {"neighbours": self._data.neighbours}
         currentNeigbours["neighbours"][neighbourDroneData["id"]] = neighbourDroneData
-        self._logger.print(currentNeigbours)
-        #self._saveNeighbourData(currentNeigbours)
-        return None
+        return PartialDroneData(currentNeigbours)

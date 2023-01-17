@@ -1,5 +1,6 @@
 from compatibility.Ast import literal_eval
 from communication.CommandData import CommandData
+from compatibility.Thread import PriorityClass
 from controller.Controller import Controller
 from drone.PartialDroneData import PartialDroneData
 from utils.ConfigurationData import ConfigurationData
@@ -15,12 +16,13 @@ from utils.math.Vector import Vector3
 class FlightController(Controller):
     
     def __init__(self, mediator: Mediator, logger: Logger, configData: ConfigurationData,
-                 processingMode: ProcessingMode = ProcessingMode.ONE, interruptable: bool = True):
-        super().__init__(mediator, logger, configData, processingMode, interruptable)
+                 processingMode: ProcessingMode = ProcessingMode.ONE):
+        super().__init__(mediator, logger, configData, processingMode)
         self._route: list[Vector3] = []
         self._currentTarget: Vector3 = Vector3()
         self._home: Coordinates = Coordinates(*literal_eval(configData.drone["home"]))
         self._data["id"] = configData.drone["id"]
+        self._priority: PriorityClass = PriorityClass.HIGH
     
     @process(EventType.COMMAND_START)
     def _takeOff(self, data: CommandData) -> PartialDroneData:

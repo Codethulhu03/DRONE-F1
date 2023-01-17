@@ -1,7 +1,7 @@
 import traceback
 
 from compatibility.Typing import Any, Optional  # Type hints
-from compatibility.Socket import socket, AF_INET, SOCK_DGRAM, SOL_SOCKET, SO_BROADCAST, available
+from compatibility.Socket import socket, AF_INET, SOCK_DGRAM, SOL_SOCKET, SO_BROADCAST, SHUT_RDWR, available
 from compatibility.Thread import Thread
 from compatibility.UUID import uuidStr
 
@@ -26,7 +26,7 @@ class LocalUDP(CommunicationInterface):
 
     if AVAILABLE:
         def __init__(self, mediator: Mediator, logger: Logger, configData: ConfigurationData,
-                     processingMode: ProcessingMode = ProcessingMode.ONE, interruptable: bool = True):
+                     processingMode: ProcessingMode = ProcessingMode.ONE):
             """
             Initialize the communication interface
 
@@ -34,12 +34,10 @@ class LocalUDP(CommunicationInterface):
             :param logger: The logger to use
             :param configData: The configuration data used to set the PacketDigestion
             :param processingMode: The processing mode to use (default: ONE) (see ProcessingMode or Module)
-            :param interruptable: Whether the module can be interrupted (default: True) (see Module)
-
             .. seealso:: :class:`utils.events.EventProcessor.ProcessingMode`,
                 :meth:`communication.CommunicationInterface.CommunicationInterface.__init__`
             """
-            super().__init__(mediator, logger, configData, processingMode, interruptable)  # Initialize the module
+            super().__init__(mediator, logger, configData, processingMode)  # Initialize the module
             self.__bc: str = "127.0.0.1"
             self.__medConnected: bool = False
             """ Whether the mediator is connected """
@@ -77,16 +75,18 @@ class LocalUDP(CommunicationInterface):
 
         def _disconnect(self):
             """ Disconnect from the Socket """
+            self.__medConnected = False
+            super()._disconnect()
             try:
-                self.__socket.close()
-            except Exception:
-                pass
-            try:
+                self.__medSocket.shutdown(SHUT_RDWR)
                 self.__medSocket.close()
             except Exception:
                 pass
-            self.__medConnected = False
-            super()._disconnect()
+            try:
+                self.__socket.shutdown(SHUT_RDWR)
+                self.__socket.close()
+            except Exception:
+                pass
 
         def _rcvThreadStart(self):
             """ Start the receiving thread """
@@ -106,13 +106,16 @@ class LocalUDP(CommunicationInterface):
                     connected_ports.add(addr[1])
                     if not data:
                         continue
-                    self.__medLogger.write(f"Received data from {addr[1]}: {data}")
+                    # self.__medLogger.write(f"Received data from {addr[1]}: {data}")
                     for port in connected_ports:
                         if port == addr[1]:
                             continue
-                        self.__medSocket.sendto(data, (self.__bc, port))
+                        try:
+                            self.__medSocket.sendto(data, (self.__bc, port))
+                        except Exception as e:
+                            self.__medLogger.write(f"Error while sending data: {str(e)}")
                 except Exception as e:
-                    self._logger.write(f"Error in UDP-Receive-Thread: {str(e)}")
+                    self.__medLogger.write(f"Error in UDP-Receive-Thread: {str(e)}")
 
         @process(EventType.SEND_PACKET)
         @evaluate(EventType.PACKET_SENT)
@@ -126,7 +129,7 @@ class LocalUDP(CommunicationInterface):
             .. seealso:: :meth:`communication.CommunicationInterface.CommunicationInterface._transmit`
             """
             data = super()._transmit(data)  # Apply digestion
-            if data is not None:
+            if data is not None and self._connected:
                 try:
                     self.__socket.sendto(data.bytes, (self.__bc, self.__medPort))
                 except Exception as e:
@@ -146,8 +149,8 @@ class LocalUDP(CommunicationInterface):
             """
             data = raw
             try:
-                packet = Packet(data, type(self).__name__, "")  # Apply undigestion
+                packet = Packet(data, type(self).__name__, "")  
             except Exception as e:
                 self._logger.write(f"Error while processing UDP-bytes: {str(e)}")
                 return None
-            return super()._receive(packet)
+            return super()._receive(packet) # Apply undigestion

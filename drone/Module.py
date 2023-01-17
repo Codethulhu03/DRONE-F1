@@ -1,5 +1,6 @@
+from compatibility.Time import sleep
 from compatibility.Typing import Callable, Any, Optional
-from compatibility.Thread import Thread, Condition
+from compatibility.Thread import Thread, Condition, osPriority, PriorityClass
 from drone.DroneData import DroneData
 from utils.ConfigurationData import ConfigurationData
 from utils.Logger import Logger
@@ -17,7 +18,7 @@ class Module(Thread, EventProcessor):
     """ Arguments for the configuration file """
     
     def __init__(self, mediator: Mediator, logger: Logger, configData: ConfigurationData,
-                 processingMode: ProcessingMode = ProcessingMode.ONE, interruptable: bool = True):
+                 processingMode: ProcessingMode = ProcessingMode.ONE):
         Thread.__init__(self)
         EventProcessor.__init__(self, mediator, processingMode)
         self.__powered: bool = True
@@ -26,8 +27,7 @@ class Module(Thread, EventProcessor):
         self._active: bool = False
         self._configData: ConfigurationData = configData
         self._interval: float = configData.ownArguments["interval"]
-        self._interruptable: bool = interruptable
-        self.__interruptable: bool = True
+        self._priority: PriorityClass = PriorityClass.NORMAL
     
     @process(EventType.INITIALIZATION)
     def _initialize(self, data: Optional[DroneData]):
@@ -50,11 +50,18 @@ class Module(Thread, EventProcessor):
         self._queue.clear()
         self._active = True
         try:
+            osPriority(self._priority)
             self.start()
         except RuntimeError:
             pass
         self.__notify()
-    
+
+    def start(self) -> None:
+        super().start()
+        self._logger.write(f"Started {type(self).__name__}")
+
+
+
     def deactivate(self, kill: bool = False):
         if kill:
             self._powerDown(None)
@@ -69,15 +76,20 @@ class Module(Thread, EventProcessor):
     
     def _postProcess(self):
         pass
-    
+
+    def __run(self):
+        while self.__powered:
+            while self._active or self._queue:
+                self._asyncProcess()
+                sleep(self._interval)
+
+    def _asyncProcess(self):
+        pass
+
     def __condOp(self, condOp: Callable, timeout: float = None):
         try:
             self.__cond.acquire(False)
             if condOp == self.__cond.wait:
-                if timeout is not None:
-                    self.__interruptable = self._interruptable
-                else:
-                    self.__interruptable = True
                 condOp(timeout=timeout)
             else:
                 condOp()
@@ -93,10 +105,11 @@ class Module(Thread, EventProcessor):
     
     def notify(self, event: Event):
         EventProcessor.notify(self, event)
-        if self.__interruptable:
-            self.__notify()
+        self.__notify()
     
     def run(self):
+        asyncThread: Thread = Thread(target=self.__run, daemon=True)
+        asyncThread.start()
         while self.__powered:
             if not self._queue:
                 self.__wait()
@@ -104,5 +117,8 @@ class Module(Thread, EventProcessor):
                 self._preProcess()
                 self._process()
                 self._postProcess()
-                self.__wait(self._interval)
+                if self.__powered:
+                    self.__wait(self._interval)
+        self._logger.write("Waiting for async thread to finish")
+        asyncThread.join()
         self._logger.write("Powered down")

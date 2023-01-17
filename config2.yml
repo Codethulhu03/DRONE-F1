@@ -70,7 +70,7 @@ configuration:
     digestion: NONE
     interval: 1.0
     mediator-port: 1337
-    own-port: 1338
+    own-port: 1339
   NeighbourChannelController:
     commInterface: '*'
     interval: 1.0
@@ -82,14 +82,17 @@ configuration:
     port: 1337
     target-address: 255.255.255.255
 drone:
-  descriptor: ''
+  descriptor: UAV2
   home: (0.0, 0.0)
-  id: -1
+  id: 2
 mission: mission.yml
 modules:
-  channels: []
-  communication: []
-  controllers: []
+  channels:
+  - NeighbourChannelController
+  communication:
+  - LocalUDP
+  controllers:
+  - FlockController
   evaluators: []
   flight: FlightlessFlightController
   sensors: []

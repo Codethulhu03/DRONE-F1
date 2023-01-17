@@ -13,8 +13,8 @@ from utils.events.Mediator import Mediator
 class Evaluator(Module):
     
     def __init__(self, mediator: Mediator, logger: Logger, configData: ConfigurationData,
-                 processingMode: ProcessingMode = ProcessingMode.ONE, interruptable: bool = True):
-        super().__init__(mediator, logger, configData, processingMode, interruptable)
+                 processingMode: ProcessingMode = ProcessingMode.ONE):
+        super().__init__(mediator, logger, configData, processingMode)
         self._oldSensorData: dict[str, Any] = {}
     
     @process(EventType.MISC_SENSOR_DATA)

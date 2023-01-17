@@ -81,8 +81,8 @@ class CommunicationChannels(Enum):
     """ Communication channel for the drone <-> digital-twin communication """
     NEIGHBOUR_CHANNEL = \
         CommunicationChannel("NEIGHBOUR",
-                             "id", "position", "coordinates", "rotation", "acceleration", "velocity", "angularVelocity",
-                             "startingPosition", "battery", "startTime","state", "flockGroup")
+                             "id", "descriptor", "position", "coordinates", "rotation", "acceleration", "velocity",
+                             "angularVelocity", "startingPosition", "startTime", "state", "flockGroup")
     """ Communication channel for the drone <-> neighbour communication """
     
     def pack(self, data: Data) -> Packet:

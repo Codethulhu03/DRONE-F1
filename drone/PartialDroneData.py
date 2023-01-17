@@ -5,6 +5,7 @@ from compatibility.Typing import Any, Optional, ItemsView, Union
 from drone.BatteryData import BatteryData
 from drone.DroneState import DroneState
 from utils import Conversion
+from utils.ConfigurationData import ConfigurationData
 from utils.Data import Data
 from utils.math.Coordinates import Coordinates
 from utils.math.Vector import Vector3
@@ -28,11 +29,10 @@ class PartialDroneData(Data):
             "neighbours"       : dict
             }
     """ TYPES of underlying dict for checking validity of Instance (see :attribute:`utils.Data.Data.TYPES`) """
-    
-    @staticmethod
-    def DEFAULTS():
-        return {
-                "id"              : 0,
+
+    __DEFAULTS: dict[str, Any] = {
+                "id": -1,
+                "descriptor": "",
                 "position"        : Vector3(),
                 "coordinates"     : Coordinates(0, 0),
                 "rotation"        : Vector3(),
@@ -46,6 +46,13 @@ class PartialDroneData(Data):
                 "flockGroup"      : 0,
                 "neighbours"      : {}
                 }
+
+    @staticmethod
+    def DEFAULTS(configData: ConfigurationData = None) -> dict[str, Any]:
+        if configData:
+            PartialDroneData.__DEFAULTS.update({"id"              : configData.drone["id"],
+                                                "descriptor"      : configData.drone["descriptor"]})
+        return deepcopy(PartialDroneData.__DEFAULTS)
     
     def __init__(self, dataDict: Union[bytes, dict[Any, Any]] = {}, *args, **kwargs):
         if isinstance(dataDict, bytes):
