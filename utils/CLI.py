@@ -140,12 +140,12 @@ class CLI:
         if self.__useOwn:
             try:
                 tcgetattr(stdin.fileno())
-                self.__postProcess()
+                self.__process()
                 return
             except termiosError:
                 pass
         self.__useOwn = False
-        self.__postProcess()
+        self.__process()
     
     def stop(self):
         self.__running = False
@@ -154,7 +154,7 @@ class CLI:
         self.__logger.log(consoleInput)
         self.__exe(consoleInput)
     
-    def __postProcess(self):
+    def __process(self):
         while self.__running:
             consoleInput = self.input(self.__prompt, set(_Helper.helpDict.keys()))
             if consoleInput:
