@@ -2,7 +2,7 @@ available: bool = True
 try:
     from threading import Thread as pyThread, Condition as pyCond, Lock as pyLock
     from enum import Enum
-    import sys
+    from compatibility.Platform import system
 
     Thread = pyThread
     Condition = pyCond
@@ -10,7 +10,7 @@ try:
 
 
     class PriorityClass(Enum):
-        if sys.platform == "win32":
+        if system() == "Windows":
             import win32api, win32process, win32con
             IDLE = win32process.IDLE_PRIORITY_CLASS
             LOW = win32process.BELOW_NORMAL_PRIORITY_CLASS
@@ -27,7 +27,7 @@ try:
             REALTIME = 0
     def osPriority(priority: PriorityClass):
         try:
-            if sys.platform == "win32":
+            if system() == "Windows":
                 import win32api, win32process, win32con
 
                 pid = win32api.GetCurrentProcessId()
@@ -42,7 +42,12 @@ try:
 except Exception:
     available = False
     print(f"Module not installed: {__name__}")
-    
+    try:
+        from compatibility.Platform import system
+        if system() == "Windows":
+            print(f"Make sure you have installed the pywin32 package")
+    except ImportError as ignored:
+        pass
     Thread = None
     Condition = None
     Lock = None

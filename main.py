@@ -7,6 +7,7 @@ from communication.CommandData import CommandData
 from compatibility.ConsoleColor import ConsoleColor as CC, ConsoleStyle as CS, wrap
 from compatibility.Itertools import chain
 from compatibility.OS import path, os
+from compatibility.Platform import system
 from compatibility.Sys import sys, argv
 from compatibility.Time import sleep
 from compatibility.Types import TracebackType
@@ -180,11 +181,14 @@ def main(*args: str):
 
 if __name__ == "__main__":
     if not os.environ.get("PYTHONHASHSEED"):
-        os.environ["PYTHONHASHSEED"] = "25565"
-        os.execv(sys.executable, [sys.executable, *sys.argv])  # restart python shell to apply the new seed
+        if system() != "Windows":
+            os.environ["PYTHONHASHSEED"] = "25565"
+            os.execv(sys.executable, [sys.executable, *sys.argv])  # restart python shell to apply the new seed
+        else:
+            print("[__main__]  Python hash seed not automatically changeable. Set the environment variable PYTHONHASHSEED for correct execution")
     print(f"[__main__]  Python hash seed: {os.environ.get('PYTHONHASHSEED')}")
     print(f"[__main__]  Python hash test: {hash('test')=}")
-    print(f"[__main__]  If the hash values are different, communication won't work - need to stop using hashes at some point")
+    print(f"[__main__]  If the hash values are different, communication won't work - I need to stop using hashes at some point")
     main(*argv[1:])
     os.environ["PYTHONHASHSEED"] = "random"
 

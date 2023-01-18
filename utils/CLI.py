@@ -12,17 +12,8 @@ from compatibility.Traceback import traceback
 from compatibility.Typing import TypeVar, Callable, Any
 from utils.Logger import Logger, _Logging
 
-try:
-    from compatibility.Termios import tcgetattr, error as termiosError
-    
-    USE_TERMIOS: bool = available and system() != "Windows"
-except ImportError:
-    USE_TERMIOS: bool = False
-    termiosError = NotImplementedError
-    
-    
-    def tcgetattr(_: Any):
-        raise termiosError("Not Implemented")
+from compatibility.Termios import tcgetattr, error as termiosError, available
+USE_TERMIOS: bool = available and system() != "Windows"
 
 F = TypeVar('F', bound=Callable[..., Any])
 
