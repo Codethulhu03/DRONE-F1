@@ -185,10 +185,12 @@ if __name__ == "__main__":
             os.environ["PYTHONHASHSEED"] = "25565"
             os.execv(sys.executable, [sys.executable, *sys.argv])  # restart python shell to apply the new seed
         else:
-            print("[__main__]  Python hash seed not automatically changeable. Set the environment variable PYTHONHASHSEED for correct execution")
+            print("[__main__]  Python hash seed not automatically changeable. "
+                  "Set the environment variable PYTHONHASHSEED for correct execution")
     print(f"[__main__]  Python hash seed: {os.environ.get('PYTHONHASHSEED')}")
     print(f"[__main__]  Python hash test: {hash('test')=}")
-    print(f"[__main__]  If the hash values are different, communication won't work - I need to stop using hashes at some point")
+    print(f"[__main__]  If the hash values are different, communication won't work "
+          f"- I need to stop using hashes at some point")
     main(*argv[1:])
     os.environ["PYTHONHASHSEED"] = "random"
 

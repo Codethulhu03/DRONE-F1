@@ -82,16 +82,17 @@ configuration:
     port: 1337
     target-address: 255.255.255.255
 drone:
-  descriptor: ''
+  descriptor: UAV3
   home: (0.0, 0.0)
-  id: -1
+  id: 3
 mission: mission.yml
 modules:
   channels:
   - NeighbourChannelController
   communication:
   - LocalUDP
-  controllers: []
+  controllers:
+  - FlockController
   evaluators: []
   flight: FlightlessFlightController
   sensors: []
