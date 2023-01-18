@@ -1,6 +1,7 @@
 from compatibility.Time import strftime, gmtime  # For logging the timestamp
 from compatibility.Typing import Any, Callable  # For type hints
 from compatibility.Sys import stdout  # For logging to stdout (CLI output)
+from compatibility.ConsoleColor import ConsoleColor as CC, ConsoleStyle as CS, wrap, available  # For coloring the output
 from utils.HiddenPrints import HiddenPrints
 
 
@@ -82,7 +83,12 @@ class Logger:
             stdout.write("\r\033[K")  # Clear the current line
             if self.__category:
                 stdout.write(f"[{self.__category}]  ")  # Print the category
-            stdout.write(Logger.__join(*args, kwargs.get("end", "\n")))  # Print the arguments
+            output: str = Logger.__join(*args, kwargs.get("end", "\n"))  # The output to print
+            if available:
+                outputLower = output.lower() # The output in lower case for contains checks
+                if "exception" in outputLower or "error" in outputLower:
+                    output = wrap(output, CC.F.RED, CS.BRIGHT)
+            stdout.write(output)  # Print the arguments
             # print the last CLI input (for when text is printed while there is still input)
             stdout.write(_Logging.CURR_CONSOLE_INPUT)
 

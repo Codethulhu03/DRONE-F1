@@ -61,8 +61,11 @@ class Data:
     def __getitem__(self, item: Any):
         if not isinstance(item, (str, Enum)):
             return self[type(item).__name__]
-        return Data(self._data[item]) if isinstance(self._data[item], dict) else self._data[item]
-    
+        return self._data[item]
+
+    def __eq__(self, other):
+        return str(self) == str(other)
+
     def __setitem__(self, key: Any, value: Any):
         if key in self._data:
             self._data[key] = value

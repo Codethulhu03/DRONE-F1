@@ -21,6 +21,7 @@ available:
 configuration:
   AirSimEvaluator:
     interval: 1.0
+    priority: 5
   AirSimFlightController:
     autoLaunchAirsim: false
     environmentConfig:
@@ -39,16 +40,20 @@ configuration:
     ip: ''
     name: ''
     port: 41451
+    priority: 5
     sensorFrequency: 0.5
     timeoutValue: 3600000
     useEnvironmentHome: true
   AirSimSensors:
     interval: 1.0
+    priority: 5
   CommandChannelController:
     commInterface: '*'
     interval: 1.0
+    priority: 5
   FlightlessFlightController:
     interval: 1.0
+    priority: 5
   FlockController:
     PositionTolerance: 1.0
     UAVMaxSpeed: 2.0
@@ -65,21 +70,25 @@ configuration:
     membersLimit: 2
     ownVelocityWeight: 0.5
     potFieldWidth: 20.0
+    priority: 5
     similarityThreshold: 25
   LocalUDP:
     digestion: NONE
     interval: 1.0
     mediator-port: 1337
     own-port: 1338
+    priority: 5
   NeighbourChannelController:
     commInterface: '*'
     interval: 1.0
+    priority: 5
   UDP:
     broadcast-address: 255.255.255.255
     digestion: NONE
     interval: 1.0
     p2p: false
     port: 1337
+    priority: 5
     target-address: 255.255.255.255
 drone:
   descriptor: ''
@@ -87,8 +96,7 @@ drone:
   id: -1
 mission: mission.yml
 modules:
-  channels:
-  - NeighbourChannelController
+  channels: []
   communication: []
   controllers: []
   evaluators: []

@@ -28,7 +28,7 @@ class Module(Thread, EventProcessor):
         self._configData: ConfigurationData = configData
         self._interval: float = configData.ownArguments["interval"]
         self._priority: PriorityClass = PriorityClass.NORMAL
-    
+
     @process(EventType.INITIALIZATION)
     def _initialize(self, data: Optional[DroneData]):
         pass

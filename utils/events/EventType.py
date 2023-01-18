@@ -47,7 +47,7 @@ class EventType(Enum):
     LAND = EventTypeID(0x08, "drone.DroneData.DroneData")
     FLYING_TO_GOAL = EventTypeID(0x09, "drone.DroneData.DroneData")
     AVOIDING_COLLISION = EventTypeID(0x0A, "drone.DroneData.DroneData")
-    FLOCK = EventTypeID(0x0B, "drone.DroneData.DroneData")
+    FLOCK = EventTypeID(0x0B, "drone.PartialDroneData.PartialDroneData")
     EMERGENCY = EventTypeID(0x0C, "drone.DroneData.DroneData")
     RTL = EventTypeID(0x0D, "drone.DroneData.DroneData")
     DISARMED = EventTypeID(0x0E, "drone.DroneData.DroneData")

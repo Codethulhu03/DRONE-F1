@@ -18,7 +18,7 @@ class EventProcessor(Notifiable):
     def __init__(self, mediator: Mediator, mode: ProcessingMode = ProcessingMode.ONE):
         super().__init__()
         self._mediator: Mediator = mediator
-        self._handlers: dict[EventType, Callable] = EventDecoratorHelper.get(type(self))
+        self._handlers: dict[EventType, list[Callable]] = EventDecoratorHelper.get(type(self))
         self.__processor: Callable = self.__processNext if mode.value else self.__processAll
     
     def _subscribe(self):
@@ -42,7 +42,8 @@ class EventProcessor(Notifiable):
     def __processNext(self):
         event = self._queue.pop(0)
         if hash(type(self).__name__) != event.caller:
-            (self._handlers[event.type])(self, event.data)
+            for handler in self._handlers[event.type]:
+                handler(self, event.data)
     
     def __processAll(self):
         while self._queue:

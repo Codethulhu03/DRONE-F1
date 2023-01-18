@@ -13,21 +13,36 @@ class EventDecoratorHelper:
     handlers: dict[str, dict[EventType, Callable]] = {}
     
     @staticmethod
-    def get(t: type) -> dict[EventType, Callable]:
-        h: dict[EventType, Callable] = {}
+    def get(t: type) -> dict[EventType, list[Callable]]:
+        h: dict[EventType, list[Callable]] = {}
         for base in t.__bases__:
-            h.update(EventDecoratorHelper.get(base))
-        h.update(EventDecoratorHelper.handlers.get(t.__name__, {}))
+            EventDecoratorHelper.__updateHandlerList(h, EventDecoratorHelper.get(base))
+        EventDecoratorHelper.__updateHandlerList(h, EventDecoratorHelper.handlers.get(t.__name__))
         EventDecoratorHelper.handlers[t.__name__] = h
         return h
+
+    @staticmethod
+    def __updateHandlerList(h: dict[EventType, list[Callable]], d: dict[EventType, list[Callable]]):
+        if not d:
+            return
+        for eventType, handlerList in d.items():
+            hHandlerList = h.setdefault(eventType, [])
+            for handler in handlerList:
+                for i, hHandler in enumerate(hHandlerList):
+                    if hHandler.__name__ == handler.__name__:
+                        hHandlerList[i] = handler
+                        break
+                else:
+                    hHandlerList.append(handler)
+            h[eventType] = hHandlerList
 
 
 def process(eventType: EventType) -> Callable[[F], F]:
     def decoratorProcess(target: F) -> F:
         check(target, eventType)
         EventDecoratorHelper.subscriptions.append((eventType, target))
-        EventDecoratorHelper.handlers.setdefault(inspectStack(0)[1].function, {})[eventType] = target
-        
+        EventDecoratorHelper.handlers.setdefault(inspectStack(0)[1].function, {}).setdefault(eventType, []).append(target)
+
         @wraps(target)
         def wrapper(*args: Any, **kwargs: Any):
             return target(*args, **kwargs)
@@ -42,7 +57,7 @@ def processAny(*eventTypes: EventType) -> Callable[[F], F]:
         check(target, *eventTypes)
         for eventType in eventTypes:
             EventDecoratorHelper.subscriptions.append((eventType, target))
-            EventDecoratorHelper.handlers.setdefault(inspectStack(0)[1].function, {})[eventType] = target
+            EventDecoratorHelper.handlers.setdefault(inspectStack(0)[1].function, {}).setdefault(eventType, []).append(target)
         
         @wraps(target)
         def wrapper(*args: Any, **kwargs: Any):
