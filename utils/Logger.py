@@ -1,15 +1,15 @@
-from compatibility.Time import strftime, gmtime  # For logging the timestamp
+from compatibility.Time import strftime, now  # For logging the timestamp
+from compatibility.OS import path, os  # For file logging
 from compatibility.Typing import Any, Callable  # For type hints
 from compatibility.Sys import stdout  # For logging to stdout (CLI output)
-from compatibility.ConsoleColor import ConsoleColor as CC, ConsoleStyle as CS, wrap, available  # For coloring the output
+from compatibility.ConsoleColor import (ConsoleColor as CC, ConsoleStyle as CS, wrap, available,
+                                        strip) # For coloring the output
 from utils.HiddenPrints import HiddenPrints
 
 
 class _Logging:
     """ Helper class for the Logger class - do not use directly """
-    logs: dict[str, list[str]] = {}
-    """ Dictionary of logs, with the log name as the key and the log as the value
-    - will be replaced with actual files"""
+    DIR: str = ""
     CURR_CONSOLE_INPUT = ""
     """ The current console input, used for fixing printing in CLI """
 
@@ -187,13 +187,15 @@ class Logger:
                 d[indices.pop()] = i
         return d
     
-    def log(self, arg: Any = "", **kwargs: Any):
+    def log(self, *args: Any, **kwargs: Any):
         """
         Logs the given argument with a timestamp to the log file of the current category
         
-        :param arg: The text to log.
+        :param args: The text to log.
         :param kwargs: Unused - included only for compatibility with print()
         
         .. note:: Saving to file is not implemented yet.
         """
-        _Logging.logs.setdefault(self.__category, []).append(f"[{strftime('%H:%M:%S', gmtime())}] {arg}")
+        with open(path.join(_Logging.DIR, f"{self.__category if self.__category else 'log'}.log"), "a") as file:
+            for arg in args:
+                file.write(f"[{now().strftime('%H:%M:%S')}] {strip(arg)}\n")

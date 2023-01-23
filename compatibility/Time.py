@@ -2,12 +2,14 @@ from compatibility.NotImplemented import notImplemented
 
 available: bool = True
 try:
-    from time import sleep as pySleep, time as pyTime, strftime as pyStrfTime, gmtime as pyGMT
+    from time import sleep as pySleep, time as pyTime, strftime as pyStrfTime, gmtime as pyGmTime
+    from datetime import datetime as pyDateTime
     
     sleep = pySleep
     time = pyTime
     strftime = pyStrfTime
-    gmtime = pyGMT
+    gmtime = pyGmTime
+    now = pyDateTime.now
 except Exception:
     available = False
     print(f"Module not installed: {__name__}")
@@ -15,3 +17,4 @@ except Exception:
     time = notImplemented
     strftime = notImplemented
     gmtime = notImplemented
+    now = notImplemented

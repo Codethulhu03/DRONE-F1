@@ -7,9 +7,9 @@ from communication.CommandData import CommandData
 from compatibility.ConsoleColor import ConsoleColor as CC, ConsoleStyle as CS, wrap
 from compatibility.Itertools import chain
 from compatibility.OS import path, os
-from compatibility.Platform import system
+from compatibility.Traceback import traceback
 from compatibility.Sys import sys, argv
-from compatibility.Time import sleep
+from compatibility.Time import sleep, strftime, now
 from compatibility.Types import TracebackType
 from compatibility.Typing import Any, Optional, Type, Callable
 from compatibility.AirSim import airsimClient, available as AirSimAvailable
@@ -18,8 +18,7 @@ from drone.PartialDroneData import PartialDroneData
 from drone.UAV import UAV
 from utils.CLI import Executor, CLI, helptext
 from utils.Configuration import Configuration
-from utils.Data import Data
-from utils.Logger import Logger
+from utils.Logger import Logger, _Logging
 from utils.events.Event import Event
 from utils.events.EventType import EventType
 from utils.math.Vector import Vector3
@@ -87,7 +86,7 @@ class Main(Executor):
     @staticmethod
     def __exceptionHook(eType: Type[BaseException], e: BaseException, trace: Optional[TracebackType] = None):
         Logger("exception").write(wrap(str(e), CC.F.RED, CS.BRIGHT))
-        Logger("exception").log("\n".join((str(eType), str(trace))))
+        Logger("exception").log(eType.__name__, traceback.format_exc())
         Main.EXIT_CALL("Exiting due to an exception")
 
     @staticmethod
@@ -171,6 +170,13 @@ class Main(Executor):
 
 def main(*args: str):
     while not Main.KILL:
+        dir: str = path.join(os.getcwd(), "logs")  # The directory to save logs in
+        if not path.isdir(dir):
+            os.mkdir(dir)  # Create the directory if it does not exist
+        dir = path.join(dir,  now().strftime("%Y-%m-%d %H:%M:%S"))  # The directory to save these instances logs in
+        if not path.isdir(dir):
+            os.mkdir(dir)  # Create the directory if it does not exist
+        _Logging.DIR = dir
         log: Logger = Logger("__main__")
         l: int = len(args)
         if not l or not path.isfile(*args):

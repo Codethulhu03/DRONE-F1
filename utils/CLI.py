@@ -142,7 +142,7 @@ class CLI:
         self.__running = False
     
     def __execLog(self, consoleInput: str):
-        self.__logger.log(consoleInput)
+        self.__logger.log(f"Console input: {consoleInput}")
         self.__exe(consoleInput)
     
     def __process(self):
