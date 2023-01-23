@@ -24,12 +24,8 @@ class ByteDigestion(PacketDigestion):
         :param packet: packet to undigest
         :return: undigested packet (converted from bytes)
         """
-        t: dict[str, type] = Packet.TYPES.copy()
-        t["commChannel"] = int
-        data = Conversion.dataDictFromBytes(t, packet.bytes)
+        data = Conversion.dataDictFromBytes(Packet.TYPES, packet.bytes)
         from communication.CommunicationChannel import CommunicationChannels  # for getting channel name from hash
-        # Convert hash to channel name
-        data["commChannel"] = next((c for c in CommunicationChannels if hash(c.value) == data["commChannel"]), None).name
         p = Packet(data, packet.commInterface, packet.commChannel)
         p.bytes = packet.bytes
         return p

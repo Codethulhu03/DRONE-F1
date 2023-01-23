@@ -65,22 +65,22 @@ class CommunicationChannels(Enum):
     """ Enum for all communication channels """
     
     DRONE_CHANNEL = \
-        CommunicationChannel("DRONE",
+        CommunicationChannel("DN",
                              "position", "acceleration", "velocity", "state", "flockGroup")
     """ Communication channel for the drone <-> drone communication """
     GROUND_STATION_CHANNEL = \
-        CommunicationChannel("GROUND_STATION",
+        CommunicationChannel("GS",
                              "position", "acceleration", "velocity", "startingPosition", "battery", "startTime",
                              "state", "flockGroup")
     """ Communication channel for the drone <-> ground-station communication """
     COMMAND_CHANNEL = \
-        CommunicationChannel("COMMAND", )
+        CommunicationChannel("CM", )
     """ Communication channel for sending commands to the drone """
     DIGITAL_TWIN_CHANNEL = \
-        CommunicationChannel("DIGITAL_TWIN", )
+        CommunicationChannel("DT", )
     """ Communication channel for the drone <-> digital-twin communication """
     NEIGHBOUR_CHANNEL = \
-        CommunicationChannel("NEIGHBOUR",
+        CommunicationChannel("NB",
                              "id", "descriptor", "position", "coordinates", "rotation", "acceleration", "velocity",
                              "angularVelocity", "startingPosition", "startTime", "state", "flockGroup")
     """ Communication channel for the drone <-> neighbour communication """

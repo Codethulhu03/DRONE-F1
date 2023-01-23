@@ -7,7 +7,7 @@ from drone.PartialDroneData import PartialDroneData  # for "payload" type hint
 
 import utils.Conversion as Conversion  # for converting to and from bytes
 from utils.Data import Data  # Base class for "Data" structures
-
+import utils.TypeHashDict as THD  # for converting data type to index
 
 class Packet(Data):
     """ Class for communication packets """
@@ -74,11 +74,9 @@ class Packet(Data):
         if self.__bytes is None:
             cC: str = self.commChannel
             cI: str = self.commInterface
-            self.commChannel = hash(cC)  # Only send communication channel hash
             del self._data["commInterface"]  # Don't send communication interface name
-            self._data["type"] = hash(type(self.payload).__name__)  # Send type of payload
+            self._data["type"] = THD.DATA_TYPES.index(type(self.payload))  # Send type of payload
             self.__bytes = Conversion.jsonDumps(self)
-            self.commChannel = cC  # Restore communication channel name
             self.commChannel = cI  # Restore communication interface name
         return self.__bytes
     

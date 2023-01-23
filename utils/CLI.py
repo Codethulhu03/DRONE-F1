@@ -176,8 +176,7 @@ class CLI:
             save = load = False
             inkey: str = readkey()
             if inkey == KEY.CTRL_C:
-                self.__logger.print()
-                self.__exe._exit("KEYBOARD_INTERRUPT")
+                raise KeyboardInterrupt("KEYBOARD_INTERRUPT")
             elif inkey in (KEY.UP, KEY.DOWN):
                 u = inkey == KEY.UP
                 index = min(index + 1, len(self.__lastInputs[prompt])) * u + max(index - 1, 1) * (not u)

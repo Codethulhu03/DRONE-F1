@@ -19,7 +19,7 @@ class NeighbourChannelController(ChannelController):
     @process(EventType.PACKET_RECEIVED)
     @evaluate(EventType.DRONE_DATA_UPDATE)
     def _recieveNeighbourData(self, data: Packet) -> PartialDroneData:
-        if data.commChannel != CommunicationChannels.NEIGHBOUR_CHANNEL.name:
+        if data.commChannel != CommunicationChannels.NEIGHBOUR_CHANNEL.value.descriptor:
             return
         neighbourDroneData: PartialDroneData = data["payload"]
         currentNeigbours: dict = {"neighbours": self._data.neighbours}

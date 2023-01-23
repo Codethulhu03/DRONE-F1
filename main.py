@@ -88,8 +88,8 @@ class Main(Executor):
     def __exceptionHook(eType: Type[BaseException], e: BaseException, trace: Optional[TracebackType] = None):
         Logger("exception").write(wrap(str(e), CC.F.RED, CS.BRIGHT))
         Logger("exception").log("\n".join((str(eType), str(trace))))
-        Main.EXIT_CALL("Exiting due to an Exception")
-    
+        Main.EXIT_CALL("Exiting due to an exception")
+
     @staticmethod
     def __findModule(moduleName: str, superclass: Any) -> type(Module):
         for cls in superclass.__subclasses__():
@@ -106,7 +106,7 @@ class Main(Executor):
         modules = [x for moduleList in self.__modules.values() for x in moduleList if
                    not args or type(x).__name__ in args]
         if modules:
-            self._logger.print(wrap(msg, CC.F.RED, CS.BRIGHT))
+            Logger("__main__").print(wrap(msg, CC.F.RED, CS.BRIGHT))
             for module in modules:
                 module.activate()
         sleep(1)
@@ -118,7 +118,7 @@ class Main(Executor):
                    not args or type(x).__name__ in args]
         self.__uav.deactivate()
         if modules:
-            self._logger.print(wrap(msg, CC.F.RED, CS.BRIGHT))
+            Logger("__main__").print(wrap(msg, CC.F.RED, CS.BRIGHT))
             sleep(1)
             for module in modules:
                 module.deactivate(kill)
@@ -129,7 +129,7 @@ class Main(Executor):
         self.__uav.notify(Event(EventType.POWER_DOWN, self.__uav.data))
         self._stop(msg=msg, kill=True)
         self.__cli.stop()
-    
+
     @helptext("exit the program safely")
     def _exit(self, msg: str = "EXITING..."):
         self._reboot(msg=msg)
@@ -180,17 +180,6 @@ def main(*args: str):
 
 
 if __name__ == "__main__":
-    if not os.environ.get("PYTHONHASHSEED"):
-        if system() != "Windows":
-            os.environ["PYTHONHASHSEED"] = "25565"
-            os.execv(sys.executable, [sys.executable, *sys.argv])  # restart python shell to apply the new seed
-        else:
-            print("[__main__]  Python hash seed not automatically changeable. "
-                  "Set the environment variable PYTHONHASHSEED for correct execution")
-    print(f"[__main__]  Python hash seed: {os.environ.get('PYTHONHASHSEED')}")
-    print(f"[__main__]  Python hash test: {hash('test')=}")
-    print(f"[__main__]  If the hash values are different, communication won't work "
-          f"- I need to stop using hashes at some point")
     main(*argv[1:])
     os.environ["PYTHONHASHSEED"] = "random"
 
