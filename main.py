@@ -170,7 +170,7 @@ class Main(Executor):
 
 def main(*args: str):
     while not Main.KILL:
-        dir: str = path.join(os.getcwd(), "logs")  # The directory to save logs in
+        dir: str = "logs"  # The directory to save logs in
         if not path.isdir(dir):
             os.mkdir(dir)  # Create the directory if it does not exist
         dir = path.join(dir,  now().strftime("%Y-%m-%d %H:%M:%S"))  # The directory to save these instances logs in

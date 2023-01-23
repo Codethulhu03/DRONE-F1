@@ -2,6 +2,7 @@ from compatibility.ConsoleColor import ConsoleColor as CC, ConsoleStyle as CS, w
 from compatibility.Difflib import get_close_matches as closestMatch
 from compatibility.Functools import wraps
 from compatibility.Getpass import getuser
+from compatibility.OS import path, os
 from compatibility.Platform import system
 from compatibility.Readchar import readkey, key as KEY, available
 from compatibility.Regex import match as reMatch, IGNORECASE as reIgnoreCase, error as reError
@@ -54,6 +55,8 @@ class Executor:
     
     def __error(self, arg: str, e: Exception):
         # open new file in errors with current timestamp as name followed by .log containing the error stacktrace
+        if not path.exists("errors"):
+            os.mkdir("errors")
         with open(f"errors/{int(time())}.log", "w") as f:
             traceback.print_exc(file=f)
         return f"Error in {wrap(arg, CC.F.CYAN)}: {wrap(e.__class__.__name__, CC.F.RED)} - {wrap(e, CC.F.LIGHTRED_EX)}"
