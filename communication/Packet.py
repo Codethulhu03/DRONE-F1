@@ -1,13 +1,10 @@
 from __future__ import annotations  # for "Packet" type hints
 
-from compatibility.Json import dumps
 from compatibility.Typing import Any, Union  # for type hints in __init__
-
-from drone.PartialDroneData import PartialDroneData  # for "payload" type hint
 
 import utils.Conversion as Conversion  # for converting to and from bytes
 from utils.Data import Data  # Base class for "Data" structures
-import utils.TypeHashDict as THD  # for converting data type to index
+import communication.TypeHashDict as THD  # for converting data type to index
 
 class Packet(Data):
     """ Class for communication packets """
@@ -15,7 +12,8 @@ class Packet(Data):
     TYPES: dict[str, type] = {**Data.TYPES,
             "commChannel"  : str,
             "commInterface": str,
-            "payload"      : PartialDroneData  # TODO: change to "Data" and implement more intelligent system
+            "payload"      : Data,
+            "type"         : int
             }
     """ TYPES of underlying dict for checking validity of Instance (see :attribute:`utils.Data.Data.TYPES`) """
     
@@ -32,11 +30,13 @@ class Packet(Data):
         if isinstance(payload, (bytes, bytearray)):  # set __bytes if data given as bytes instance
             self.__bytes: bytes = payload
             try:
-                fromjson: dict[str, Any] = Packet._jsonDict(Packet.TYPES, payload)
+                types = Packet.TYPES.copy()
+                types["payload"] = THD.DATA_TYPES[Packet._jsonDict({"type": int}, payload)["type"]]
+                fromjson: dict[str, Any] = Packet._jsonDict(types, payload)
                 data["payload"] = fromjson["payload"]
                 commChannel = fromjson["commChannel"]
             except Exception as e:
-                data["payload"] = Data(payload)
+                data = {"payload": Data({}), "type": -1}
         else:
             self.__bytes: bytes = None
             if not isinstance(payload, Data):
@@ -48,8 +48,10 @@ class Packet(Data):
             data["commChannel"] = data["commChannel"].name
         if commInterface or "commInterface" not in data:
             data["commInterface"] = commInterface
+        if "type" not in data:
+            data["type"] = THD.DATA_TYPES.index(type(data["payload"]))
         super().__init__(data)  # finish initialization with dataDict and check validity using TYPES
-    
+
     @staticmethod
     def fromJson(jsonString: str) -> Packet:
         """
@@ -72,12 +74,10 @@ class Packet(Data):
         :return: bytes representation of the packet
         """
         if self.__bytes is None:
-            cC: str = self.commChannel
             cI: str = self.commInterface
             del self._data["commInterface"]  # Don't send communication interface name
-            self._data["type"] = THD.DATA_TYPES.index(type(self.payload))  # Send type of payload
             self.__bytes = Conversion.jsonDumps(self)
-            self.commChannel = cI  # Restore communication interface name
+            self.commInterface = cI   # Restore communication interface name
         return self.__bytes
     
     @bytes.setter
@@ -97,6 +97,15 @@ class Packet(Data):
         :return: communication interface name
         """
         return self["commInterface"]
+
+    @property
+    def type(self) -> int:
+        """
+        Get the data type index of the payload
+
+        :return: data type index (see TypeHashDict.DATA_TYPES)
+        """
+        return self["type"]
     
     @commInterface.setter
     def commInterface(self, value: str):
@@ -106,10 +115,10 @@ class Packet(Data):
         :param value: communication interface name
         :return:
         """
-        self["commInterface"] = value
+        self._data["commInterface"] = value
     
     @property
-    def payload(self) -> dict:
+    def payload(self) -> Data:
         """
         Get the payload of the packet
         
@@ -133,4 +142,4 @@ class Packet(Data):
         
         :param value: communication channel name
         """
-        self["commChannel"] = value
+        self._data["commChannel"] = value

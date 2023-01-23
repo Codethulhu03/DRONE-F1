@@ -50,7 +50,7 @@ def __dataf(i: int, b: bytes, keys: list) -> tuple[str, type, int]:
 
 
 def __listf(i: int, b: bytes, keys: type) -> tuple[str, type, int]:
-    return "", keys, i + 1
+    return "", keys, i
 
 
 def fill(data: Union[list, dict], b: bytes, keys: Union[list, type], f: Callable) -> dict[str, Any]:

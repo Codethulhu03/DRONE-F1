@@ -16,8 +16,10 @@ class Data:
         self._data: dict[Any, Any] = dataDict
         if not self.TYPES.keys() <= self._data.keys():
             raise AttributeError("Not all keys filled")
-        if not all(type(self._data[key]) is self.TYPES[key] or self.TYPES[key] is object for key in self.TYPES):
-            raise AttributeError("Not all types correct")
+        for key in self.TYPES:
+            t: type = self.TYPES[key]
+            if not isinstance(self._data[key], t):
+                raise AttributeError(f"Not all types correct: {str(self._data[key])} is not {str(t)}")
         if not self._check():
             raise AttributeError("Check failed")
     

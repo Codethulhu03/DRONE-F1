@@ -1,5 +1,6 @@
 from compatibility.Time import strftime, now  # For logging the timestamp
 from compatibility.OS import path, os  # For file logging
+from compatibility.Traceback import traceback
 from compatibility.Typing import Any, Callable  # For type hints
 from compatibility.Sys import stdout  # For logging to stdout (CLI output)
 from compatibility.ConsoleColor import (ConsoleColor as CC, ConsoleStyle as CS, wrap, available,
@@ -198,4 +199,9 @@ class Logger:
         """
         with open(path.join(_Logging.DIR, f"{self.__category if self.__category else 'log'}.log"), "a") as file:
             for arg in args:
-                file.write(f"[{now().strftime('%H:%M:%S')}] {strip(arg)}\n")
+                file.write(f"[{now().strftime('%H:%M:%S')}] {strip(str(arg))}\n")
+
+    @staticmethod
+    def error(e: Exception, msg: str = ""):
+        Logger("exception").write(msg if msg else str(e))
+        Logger("exception").log(type(e).__name__, *traceback.format_exc().split("\n"))

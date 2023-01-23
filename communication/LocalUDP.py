@@ -95,7 +95,7 @@ class LocalUDP(CommunicationInterface):
                     data, addr = self.__socket.recvfrom(1000000)
                     Thread(target=self._receive, args=(data,), daemon=True).start()  # Call _receive in a new thread
                 except Exception as e:
-                    self._logger.write(f"Error in UDP-Receive-Thread: {str(e)}")
+                    Logger.error(e, f"Error in UDP-Receive-Thread: {str(e)}")
 
         def _medThreadStart(self):
             """ Start the mediating thread """
@@ -103,6 +103,8 @@ class LocalUDP(CommunicationInterface):
             while self.__medConnected:
                 try:
                     data, addr = self.__medSocket.recvfrom(1000000)
+                    if not addr:
+                        continue
                     connected_ports.add(addr[1])
                     if not data:
                         continue
@@ -113,9 +115,9 @@ class LocalUDP(CommunicationInterface):
                         try:
                             self.__medSocket.sendto(data, (self.__bc, port))
                         except Exception as e:
-                            self.__medLogger.write(f"Error while sending data: {str(e)}")
+                            Logger.error(e, f"[Mediator] Error while sending data: {str(e)}")
                 except Exception as e:
-                    self.__medLogger.write(f"Error in UDP-Receive-Thread: {str(e)}")
+                    Logger.error(e, f"[Mediator] Error in UDP-Receive-Thread: {str(e)}")
 
         @process(EventType.SEND_PACKET)
         @evaluate(EventType.PACKET_SENT)
@@ -131,9 +133,10 @@ class LocalUDP(CommunicationInterface):
             data = super()._transmit(data)  # Apply digestion
             if data is not None and self._connected:
                 try:
+                    self._logger.log(f"Sending packet {data.bytes}")
                     self.__socket.sendto(data.bytes, (self.__bc, self.__medPort))
                 except Exception as e:
-                    self._logger.write(f"Error while sending data: {str(e)}")
+                    Logger.error(e, f"Error while sending data: {str(e)}")
                     return None
             return data
 
@@ -151,6 +154,6 @@ class LocalUDP(CommunicationInterface):
             try:
                 packet = Packet(data, type(self).__name__, "")  
             except Exception as e:
-                self._logger.write(f"Error while processing UDP-bytes: {str(e)}")
+                Logger.error(e, f"Error while processing UDP-bytes: {str(e)}")
                 return None
             return super()._receive(packet) # Apply undigestion

@@ -99,7 +99,7 @@ class UDP(CommunicationInterface):
                     if addr != self.__own:
                         Thread(target=self._receive, args=(data,), daemon=True).start()  # Call _receive in a new thread
                 except Exception as e:
-                    self._logger.write(f"Error in UDP-Receive-Thread: {str(e)}")
+                    Logger.error(e, f"Error in UDP-Receive-Thread: {str(e)}")
         
         @process(EventType.SEND_PACKET)
         @evaluate(EventType.PACKET_SENT)
@@ -131,6 +131,6 @@ class UDP(CommunicationInterface):
             try:
                 packet = Packet(data, "", type(self).__name__)  # Apply undigestion
             except Exception as e:
-                self._logger.write(f"Error while processing UDP-bytes: {str(e)}")
+                Logger.error(e, f"Error while processing UDP-bytes: {str(e)}")
                 return None
             return super()._receive(packet)

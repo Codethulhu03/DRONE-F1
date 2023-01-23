@@ -12,4 +12,4 @@ def __getSubTypeList(t: type) -> list[type]:
         l += __getSubTypeList(sub)
     return l
 
-DATA_TYPES: list[type] = sorted(__getSubTypeList(Data), key=lambda x: x.__name__)
+DATA_TYPES: list[type] = sorted(__getSubTypeList(Data) + [Data], key=lambda x: x.__name__)

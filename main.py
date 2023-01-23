@@ -85,8 +85,7 @@ class Main(Executor):
     
     @staticmethod
     def __exceptionHook(eType: Type[BaseException], e: BaseException, trace: Optional[TracebackType] = None):
-        Logger("exception").write(wrap(str(e), CC.F.RED, CS.BRIGHT))
-        Logger("exception").log(eType.__name__, traceback.format_exc())
+        Logger.error(e)
         Main.EXIT_CALL("Exiting due to an exception")
 
     @staticmethod
@@ -163,25 +162,29 @@ class Main(Executor):
         if "-r" in args:
             relative = True
             args = [x for x in args if x != "-r"]
-        pos: Vector3 = Vector3([float(x) for x in args[:3]] + [0] * (3 - len(args))) + self.__uav.data.position * relative
+        pos: Vector3 = Vector3(*map(float, args[:3])) + self.__uav.data.position * relative
         dd: dict[str, Any] = {"target": pos, "speed": 5}
         self.__uav.notify(Event(EventType.COMMAND_CHANGE_COURSE, CommandData(cmd=Command.CHANGE_COURSE, msg=dd)))
 
 
 def main(*args: str):
     while not Main.KILL:
+        changed: bool = False
+        l: int = len(args)
+        if not l or not path.isfile(*args):
+            args: tuple[str] = ("config.yml",)
+            changed = True
         dir: str = "logs"  # The directory to save logs in
         if not path.isdir(dir):
             os.mkdir(dir)  # Create the directory if it does not exist
-        dir = path.join(dir,  now().strftime("%Y-%m-%d %H:%M:%S"))  # The directory to save these instances logs in
+        # The directory to save these instances logs in:
+        dir = path.join(dir,  f"{now().strftime('%Y-%m-%d %H:%M:%S')} ({' '.join(args)})")
         if not path.isdir(dir):
             os.mkdir(dir)  # Create the directory if it does not exist
         _Logging.DIR = dir
-        log: Logger = Logger("__main__")
-        l: int = len(args)
-        if not l or not path.isfile(*args):
-            log.write(f"Configuration file {'does not exist' * l}{'missing as argument' * (not l)}, using config.yml")
-            args: tuple[str] = ("config.yml",)
+        if changed:
+            Logger("__main__").write(f"Configuration file {'does not exist' * l}{'missing as argument' * (not l)}"
+                                     f", using config.yml")
         Main(*args)
 
 

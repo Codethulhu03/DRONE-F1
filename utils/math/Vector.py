@@ -12,13 +12,16 @@ class Vector2:
     def __init__(self, x: Union[list, bytes, float] = 0.0, y: float = 0.0):
         l: list[float] = []
         if isinstance(x, bytes):
-            l = Conversion.fromBytes(x, list[float])
+            if len(x) == 32:
+                l = Conversion.fromBytes(x, list[float])
+            else:
+                l = Conversion.fromBytes(x, list[int])
         elif isinstance(x, list):
             l = x
         if l:
             x, y = l
-        self.x = x
-        self.y = y
+        self.x = float(x)
+        self.y = float(y)
 
     def __bytes__(self) -> bytes:
         return Conversion.toBytes(self.toList())
@@ -120,6 +123,8 @@ class Vector2:
         return self.magnitude
 
     def toList(self):
+        if all(int(n) == n for n in [self.x, self.y]):
+            return [int(self.x), int(self.y)]
         return [self.x, self.y]
 
 
@@ -129,13 +134,16 @@ class Vector3(Vector2):
     def __init__(self, x: Union[float, bytes, list] = 0.0, y: float = 0.0, z: float = 0.0):
         l: list[float] = []
         if isinstance(x, bytes):
-            l = Conversion.fromBytes(x, list[float])
+            if len(x) == 48:
+                l = Conversion.fromBytes(x, list[float])
+            else:
+                l = Conversion.fromBytes(x, list[int])
         elif isinstance(x, list):
             l = x
         if l:
             x, y, z = l
         super().__init__(x, y)
-        self.z: float = z
+        self.z: float = float(z)
     
     def __str__(self) -> str:
         return f"({self.x}, {self.y}, {self.z})"
@@ -275,6 +283,8 @@ class Vector3(Vector2):
         return Vector3(*loads(jsonString))
 
     def toList(self) -> list:
+        if all(int(n) == n for n in [self.x, self.y, self.z]):
+            return [int(self.x), int(self.y), int(self.z)]
         return [self.x, self.y, self.z]
 
     def projectOn(self, other: Vector3) -> Vector3:

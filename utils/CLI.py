@@ -53,17 +53,6 @@ class Executor:
     def __unknown(self, *cmd: str):
         return f"Unknown Command: {wrap(cmd[0], CC.F.RED)}{self.__closest(cmd[0])}"
     
-    def __error(self, arg: str, e: Exception):
-        # open new file in errors with current timestamp as name followed by .log containing the error stacktrace
-        if not path.exists("errors"):
-            os.mkdir("errors")
-        logfile = f"{int(time())}.log"
-        with open(path.join("errors", logfile), "a") as f:
-            f.write(f"[{now().strftime('%H:%M:%S')}]  Error in {arg}:\n{traceback.format_exc()}")
-            traceback.print_exc(file=f)
-        return f"Error in {wrap(arg, CC.F.CYAN)}: {wrap(e.__class__.__name__, CC.F.RED)} - {wrap(e, CC.F.LIGHTRED_EX)}"\
-               f"  - See errors/{logfile} for more information"
-    
     @staticmethod
     def __closest(cmd: str) -> str:
         matches: list[str] = closestMatch(cmd.lower(), _Helper.helpDict.keys(), 1, cutoff=0.3)
@@ -99,7 +88,9 @@ class Executor:
         try:
             self.__execute(str(*args))
         except Exception as e:
-            self._logger.print(self.__error(str(*args).strip().split(" ")[0], e=e))
+            if len(args) == 1:
+                args = tuple(args[0].split(" "))
+            Logger.error(e, f"Error in {args[0]}{args[1:]}: {e.__class__.__name__} - {e}")
     
     def _exit(self, msg: str = "EXITING..."):
         self._logger.print(wrap(msg, CC.F.RED, CS.BRIGHT))

@@ -1,8 +1,8 @@
-from communication import Packet  # Packet class used in digestion
+from communication.Packet import Packet  # Packet class used in digestion
 from communication.PacketDigestion import PacketDigestion  # Base class for packet digestions
 from compatibility.Enum import Enum  # super class for enums
 from utils import Conversion  # Conversion class for converting data
-
+import communication.TypeHashDict as THD # for getting types from indices
 
 class ByteDigestion(PacketDigestion):
     """ PacketDigestion for digesting packets to bytes """
@@ -14,7 +14,11 @@ class ByteDigestion(PacketDigestion):
         :param packet: packet to digest
         :return: digested packet (converted to bytes)
         """
-        packet.bytes = bytes(packet.payload)
+        del packet._data["commInterface"]  # Don't send communication interface name
+        type = packet.type
+        del packet._data["type"]  # Send typeBytes seperately
+        packet.bytes = type.to_bytes(1, "big") + bytes(packet)
+        packet._data["type"] = type  # Restore type
         return packet
     
     def fromDigested(self, packet: Packet) -> Packet:
@@ -24,9 +28,12 @@ class ByteDigestion(PacketDigestion):
         :param packet: packet to undigest
         :return: undigested packet (converted from bytes)
         """
-        data = Conversion.dataDictFromBytes(Packet.TYPES, packet.bytes)
-        from communication.CommunicationChannel import CommunicationChannels  # for getting channel name from hash
-        p = Packet(data, packet.commInterface, packet.commChannel)
+        types: dict[str, type] = Packet.TYPES.copy()
+        types["payload"] = THD.DATA_TYPES[packet.bytes[0]]
+        del types["commInterface"]  # Don't send communication interface name
+        del types["type"]  # Send typeBytes seperately
+        data = Conversion.dataDictFromBytes(types, packet.bytes[1:])
+        p = Packet(data["payload"], packet.commInterface, data["commChannel"])
         p.bytes = packet.bytes
         return p
 

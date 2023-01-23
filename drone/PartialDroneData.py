@@ -14,6 +14,7 @@ from utils.math.Vector import Vector3
 class PartialDroneData(Data):
     TYPES: dict[str, type] = {**Data.TYPES,
             "id"              : int,
+            "descriptor"      : str,
             "position"        : Vector3,  # Relative to start [Δlat, Δlng, Δalt] in m
             "coordinates"     : Coordinates,  # The coordinates of the drone
             "rotation"        : Vector3,  # Euler angles in degrees, [roll, pitch, yaw]
