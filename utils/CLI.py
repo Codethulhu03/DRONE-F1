@@ -8,7 +8,7 @@ from compatibility.Readchar import readkey, key as KEY, available
 from compatibility.Regex import match as reMatch, IGNORECASE as reIgnoreCase, error as reError
 from compatibility.Socket import gethostname
 from compatibility.Sys import stdout, stdin, version
-from compatibility.Time import time
+from compatibility.Time import time, now
 from compatibility.Traceback import traceback
 from compatibility.Typing import TypeVar, Callable, Any
 from utils.Logger import Logger, _Logging
@@ -57,9 +57,12 @@ class Executor:
         # open new file in errors with current timestamp as name followed by .log containing the error stacktrace
         if not path.exists("errors"):
             os.mkdir("errors")
-        with open(f"errors/{int(time())}.log", "w") as f:
+        logfile = f"{int(time())}.log"
+        with open(path.join("errors", logfile), "a") as f:
+            f.write(f"[{now().strftime('%H:%M:%S')}]  Error in {arg}:\n{traceback.format_exc()}")
             traceback.print_exc(file=f)
-        return f"Error in {wrap(arg, CC.F.CYAN)}: {wrap(e.__class__.__name__, CC.F.RED)} - {wrap(e, CC.F.LIGHTRED_EX)}"
+        return f"Error in {wrap(arg, CC.F.CYAN)}: {wrap(e.__class__.__name__, CC.F.RED)} - {wrap(e, CC.F.LIGHTRED_EX)}"\
+               f"  - See errors/{logfile} for more information"
     
     @staticmethod
     def __closest(cmd: str) -> str:

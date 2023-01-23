@@ -89,7 +89,8 @@ mission: mission.yml
 modules:
   channels:
   - NeighbourChannelController
-  communication: []
+  communication:
+  - LocalUDP
   controllers: []
   evaluators: []
   flight: FlightlessFlightController
