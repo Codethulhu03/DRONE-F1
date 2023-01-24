@@ -93,7 +93,8 @@ class FlightlessFlightController(FlightController):
         if isinstance(data.msg, Vector3):
             self._logger.write(f"Going to {data.msg}")
             super()._goto(data)
-            return PartialDroneData({"position"    : self._currentTarget,
+            return PartialDroneData({"self._currentTarget": self._currentTarget,
+                                     "position"    : self._currentTarget,
                                      "acceleration": Vector3(),
                                      "velocity"    : Vector3(),
                                      "state"       : DroneState.FLYING_TO_GOAL})

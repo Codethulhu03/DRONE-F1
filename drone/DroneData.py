@@ -25,7 +25,11 @@ class DroneData(PartialDroneData):
                 if key == "coordinates":
                     partial["position"] = partial[key].calcPositionalVector(self["startingPosition"])
                 self[key] = deepcopy(partial[key])
-    
+
+    @property
+    def currentTarget(self):
+        return self["currentTarget"]
+
     @property
     def position(self) -> Vector3:
         return self["position"]

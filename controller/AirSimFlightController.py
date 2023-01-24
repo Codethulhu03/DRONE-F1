@@ -11,7 +11,7 @@ from drone.DroneState import DroneState
 from drone.PartialDroneData import PartialDroneData
 from utils.ConfigurationData import ConfigurationData
 from utils.Logger import Logger
-from utils.events.EventDecorators import process
+from utils.events.EventDecorators import process, evaluate
 from utils.events.EventType import EventType
 from utils.events.Mediator import Mediator
 from utils.math.Coordinates import Coordinates
@@ -106,6 +106,7 @@ class AirSimFlightController(FlightController):
                     [binaryPath, f"-ResX={resolution[0]}", f"-ResY={resolution[1]}", "-windowed", f"--settings={settings}"])
         
         @process(EventType.COMMAND_ARM)
+        @evaluate(EventType.DRONE_DATA_UPDATE)
         def _arm(self, data: CommandData) -> PartialDroneData:
             if not self.__connected:
                 return PartialDroneData()
@@ -113,6 +114,7 @@ class AirSimFlightController(FlightController):
             return PartialDroneData({"state": DroneState.IDLE})
         
         @process(EventType.COMMAND_DISARM)
+        @evaluate(EventType.DRONE_DATA_UPDATE)
         def _disarm(self, data: CommandData) -> PartialDroneData:
             if not self.__connected:
                 return PartialDroneData()
@@ -120,6 +122,7 @@ class AirSimFlightController(FlightController):
             return PartialDroneData({"state": DroneState.DISARMED})
         
         @process(EventType.COMMAND_START)
+        @evaluate(EventType.DRONE_DATA_UPDATE)
         def _takeOff(self, data: CommandData) -> PartialDroneData:
             if not self.__connected:
                 return PartialDroneData()
@@ -130,6 +133,7 @@ class AirSimFlightController(FlightController):
             return PartialDroneData({"state": DroneState.AT_START})
         
         @process(EventType.COMMAND_POS_HOLD)
+        @evaluate(EventType.DRONE_DATA_UPDATE)
         def _holdPosition(self, data: CommandData) -> PartialDroneData:
             if not self.__connected:
                 return PartialDroneData()
@@ -137,6 +141,7 @@ class AirSimFlightController(FlightController):
             return PartialDroneData({"state": DroneState.POS_HOLD})
         
         @process(EventType.COMMAND_RTL)
+        @evaluate(EventType.DRONE_DATA_UPDATE)
         def _returnToLaunch(self, data: CommandData) -> PartialDroneData:
             if not self.__connected:
                 return PartialDroneData()
@@ -145,6 +150,7 @@ class AirSimFlightController(FlightController):
             return PartialDroneData({"state": DroneState.RTL})
         
         @process(EventType.COMMAND_LAND)
+        @evaluate(EventType.DRONE_DATA_UPDATE)
         def _land(self, data: CommandData) -> PartialDroneData:
             if not self.__connected:
                 return PartialDroneData()
@@ -156,6 +162,7 @@ class AirSimFlightController(FlightController):
             return PartialDroneData({"state": DroneState.LAND})
         
         @process(EventType.COMMAND_CHANGE_COURSE)
+        @evaluate(EventType.DRONE_DATA_UPDATE)
         def _goto(self, data: CommandData) -> PartialDroneData:
             if not self.__connected:
                 return PartialDroneData()
@@ -167,4 +174,4 @@ class AirSimFlightController(FlightController):
                         data.msg["speed"], vehicle_name=self._config["name"])
                 self._currentTarget = target
                 self._route.append(target)
-            return PartialDroneData({"state": DroneState.FLYING_TO_GOAL})
+            return PartialDroneData({"state": DroneState.FLYING_TO_GOAL, "currentTarget": target})

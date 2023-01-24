@@ -15,6 +15,7 @@ class PartialDroneData(Data):
     TYPES: dict[str, type] = {**Data.TYPES,
             "id"              : int,
             "descriptor"      : str,
+            "currentTarget"     : Vector3,
             "position"        : Vector3,  # Relative to start [Δlat, Δlng, Δalt] in m
             "coordinates"     : Coordinates,  # The coordinates of the drone
             "rotation"        : Vector3,  # Euler angles in degrees, [roll, pitch, yaw]
@@ -34,6 +35,7 @@ class PartialDroneData(Data):
     __DEFAULTS: dict[str, Any] = {
                 "id": -1,
                 "descriptor": "",
+                "currentTarget": Vector3(),
                 "position"        : Vector3(),
                 "coordinates"     : Coordinates(0, 0),
                 "rotation"        : Vector3(),
