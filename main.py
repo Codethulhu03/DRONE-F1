@@ -149,7 +149,7 @@ class Main(Executor):
         if not len(args):
             args = (5.,)
         self.__uav.notify(Event(EventType.COMMAND_START, CommandData(cmd=Command.START, msg={
-                "takeOffAltitude": args[0],
+                "takeOffAltitude": float(args[0]),
                 "speed"          : 5})))
     
     @helptext("Send the command to land")
