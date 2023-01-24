@@ -35,9 +35,13 @@ configuration:
       - 0
       - 0
     forceCloseAirsimOnExit: false
+    home:
+      X: 8
+      Y: 0
+      Z: 0
     interval: 1.0
     ip: ''
-    name: ''
+    name: UAV2
     port: 41451
     sensorFrequency: 0.5
     timeoutValue: 3600000
@@ -56,7 +60,7 @@ configuration:
     flightStep: 10.0
     flockArea: 200.0
     flockDistance: 8.6
-    flockGroup: 1
+    flockGroup: 0
     flockHysteresis: 0.0
     flockMaxDistance: 12.2
     flockMinDistance: 5.0
@@ -93,7 +97,9 @@ modules:
   - LocalUDP
   controllers:
   - FlockController
-  evaluators: []
-  flight: FlightlessFlightController
-  sensors: []
+  evaluators:
+  - AirSimEvaluator
+  flight: AirSimFlightController
+  sensors:
+  - AirSimSensors
   unknown: []

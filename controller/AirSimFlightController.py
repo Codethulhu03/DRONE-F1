@@ -35,7 +35,8 @@ class AirSimFlightController(FlightController):
                     "defineConfigHere": False,
                     "viewMode"        : "FlyWithMe",
                     "wind"            : [0, 0, 0]
-                    }
+                    },
+            "home"                    : {"X":0, "Y":0, "Z":0},
             }
     """ Arguments for the configuration file """
     if AVAILABLE:

@@ -178,7 +178,8 @@ def main(*args: str):
         if not path.isdir(dir):
             os.mkdir(dir)  # Create the directory if it does not exist
         # The directory to save these instances logs in:
-        dir = path.join(dir,  f"{now().strftime('%Y-%m-%d %H:%M:%S')} ({' '.join(args)})")
+
+        dir = path.join(dir,  f"{now().strftime('%Y-%m-%d %H-%M-%S')} ({path.basename(' '.join(args))})")
         if not path.isdir(dir):
             os.mkdir(dir)  # Create the directory if it does not exist
         _Logging.DIR = dir

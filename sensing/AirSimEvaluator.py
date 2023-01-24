@@ -18,6 +18,8 @@ class AirSimEvaluator(Evaluator):
         def __init__(self, mediator: Mediator, logger: Logger, configData: ConfigurationData):
             super().__init__(mediator, logger, configData)
             self._oldSensorData["AirSim"] = None
+            posDict: dict[str, int] = configData.configuration("AirSimFlightController")["home"]
+            self.__home: Vector3 = Vector3(posDict["X"], posDict["Y"], posDict["Z"])
         
         @process(EventType.AIRSIM_SENSOR_DATA)
         @evaluate(EventType.DRONE_DATA_UPDATE, EventType.MOVEMENT_DATA_UPDATE)
@@ -37,7 +39,7 @@ class AirSimEvaluator(Evaluator):
                 rotation = eulerFromQuaternion(*data["orientation"])
                 # Also possible: Angular Velocity, orientation, eph/epv und alle anderen AirSim senoren
                 droneDict = {
-                        "position"       : pos,
+                        "position"       : self.__home + pos,
                         "acceleration"   : acceleration,
                         "velocity"       : velocity,
                         "angularVelocity": angVel,
