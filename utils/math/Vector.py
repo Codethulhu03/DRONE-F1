@@ -225,8 +225,8 @@ class Vector3(Vector2):
     def similarity(self, other: Vector3) -> float:
         m: float = (self.magnitude * other.magnitude)
         if not m:
-            return -1
-        return (self * other) / (self.magnitude * other.magnitude)
+            return -1.
+        return min(1., max(-1., (self * other) / m))
 
     def __getitem__(self, item) -> float:
         if item == 0:
