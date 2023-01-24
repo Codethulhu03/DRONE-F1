@@ -15,6 +15,7 @@ from utils.events.EventDecorators import process
 from utils.events.EventType import EventType
 from utils.events.Mediator import Mediator
 from utils.math.Coordinates import Coordinates
+from utils.math.Vector import Vector3
 
 
 class AirSimFlightController(FlightController):
@@ -43,6 +44,8 @@ class AirSimFlightController(FlightController):
         def __init__(self, mediator: Mediator, logger: Logger, configData: ConfigurationData):
             FlightController.__init__(self, mediator, logger, configData)
             self._config = configData.ownArguments
+            self.__home: Vector3 = Vector3(self._config["home"]["X"], self._config["home"]["Y"],
+                                           self._config["home"]["Z"])
             self.__connected = False
             self._airsim: Optional[airsimClient] = None
         
@@ -160,7 +163,8 @@ class AirSimFlightController(FlightController):
             if self._currentTarget != target:
                 self._airsim.enableApiControl(True, vehicle_name=self._config["name"])
                 self._airsim.moveToPositionAsync(
-                        target[0], target[1], -target[2], data.msg["speed"], vehicle_name=self._config["name"])
+                        target[0] + self.__home[0], target[1] + self.__home[1], -target[2] + self.__home[2],
+                        data.msg["speed"], vehicle_name=self._config["name"])
                 self._currentTarget = target
                 self._route.append(target)
             return PartialDroneData({"state": DroneState.FLYING_TO_GOAL})
