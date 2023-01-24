@@ -179,7 +179,9 @@ class Vector3(Vector2):
         return sqrt(self.x ** 2 + self.y ** 2 + self.z ** 2)
 
     def normalize(self) -> Vector3:
-        return self / self.magnitude
+        if self.magnitude:
+            return self / self.magnitude
+        return self
 
     def dot(self, other: Vector3) -> float:
         return self.x * other.x + self.y * other.y + self.z * other.z

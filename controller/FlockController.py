@@ -133,7 +133,7 @@ class FlockController(Controller):
         vectorToGoal: Vector3 = self._data.position - goal
         position: Vector3 = self._data.position
         velocityNed: Vector3 = self._data.velocity
-        vfFlock, flockWeight = self.getFlockForce(position, velocityNed)
+        vfFlock, flockWeight = self.getFlockForce()
         targetWeight: float = 1 - flockWeight
         vfTarget: Vector3 = self.calcPotField(goal, vectorToGoal)
         vfOwnVel: Vector3 = velocityNed
@@ -198,13 +198,13 @@ class FlockController(Controller):
         # Option 1  all members Forces
         # average force * flockWeightRange
         weight_1: float = self.__flockWeightRange * sum(map(lambda x: x.magnitude, membersForces),
-                                                        Vector3()) / len(membersForces)
+                                                        0.0) / max(1, len(membersForces))
         # Option 2 repForces
         # average repulsive force
-        weight_2: float = sum(map(lambda x: x.magnitude, repForces), Vector3()) / min(1, len(repForces))
+        weight_2: float = sum(map(lambda x: x.magnitude, repForces), 0.0) / max(1, len(repForces))
         # Option 3 attForces
         # average attractive force
-        weight_3: float = sum(map(lambda x: x.magnitude, attForces), Vector3()) / min(1, len(attForces))
+        weight_3: float = sum(map(lambda x: x.magnitude, attForces), 0.0) / max(1, len(attForces))
         """ Old code -- but why?
         weight_3 = 0.60 * weight_2 + 0.40 * weight_3    # weight_3 is never used??  ~ Lars
         weight = weight_1                               # Actually only weight_1 is used lol ~ Fishboy
@@ -258,7 +258,7 @@ class FlockController(Controller):
         """
         if vTarget.magnitude < self.__positionTolerance:
             return Vector3()
-        line_vec = sum(map(lambda m: goal - m.position, self.__members), Vector3())
+        line_vec = sum(map(lambda m: goal - m["position"], self.__members), Vector3())
         return line_vec.normalize() if (
                 vTarget.magnitude * sin(acos(line_vec.similarity(vTarget))) < self.__potFieldWidth
             ) else vTarget.normalize()
@@ -315,16 +315,18 @@ class FlockController(Controller):
         for neighbour in data["neighbours"].values():
             if (neighbour["position"] - self._data["position"]).magnitude < self.__flockMaxDistance:
                 # distanz des nachbarn im flock bereich
-                self._logger.write(f"Flock: neighbour-ids in flock range: {neighbour['id']}")
+                self._logger.log(f"Flock: neighbour-ids in flock range: {neighbour['id']}")
 
         newPosition: Vector3 = Vector3()
         """ New position to go to """
         speed: float = 1.0
         """ Speed to go at (might need to be magnitude of Vector)"""
-        self._logger.write(f"Neighbours: {data['neighbours']}")
+        self._logger.log(f"Neighbours: {data['neighbours']}")
+
         # VV Your code below VV
         # self.buildFlock()
-        # newPosition, speed = self.flyFlock()
+        # newPosition, speed = self.flyFlock(self._data.currentTarget)
+        # self._logger.log(newPosition, speed)
         # ^^ Your code above ^^
 
         # return CommandData(cmd=Command.CHANGE_COURSE, msg={"target": newPosition, "speed": speed})
