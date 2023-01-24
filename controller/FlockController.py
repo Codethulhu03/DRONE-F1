@@ -315,13 +315,13 @@ class FlockController(Controller):
         for neighbour in data["neighbours"].values():
             if (neighbour["position"] - self._data["position"]).magnitude < self.__flockMaxDistance:
                 # distanz des nachbarn im flock bereich
-                self._logger.print(f"Flock: neighbour-ids in flock range: {neighbour['id']}")
+                self._logger.write(f"Flock: neighbour-ids in flock range: {neighbour['id']}")
 
         newPosition: Vector3 = Vector3()
         """ New position to go to """
         speed: float = 1.0
         """ Speed to go at (might need to be magnitude of Vector)"""
-        self._logger.print(f"Neighbours: {data['neighbours']}")
+        self._logger.write(f"Neighbours: {data['neighbours']}")
         # VV Your code below VV
         # self.buildFlock()
         # newPosition, speed = self.flyFlock()

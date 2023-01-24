@@ -17,13 +17,13 @@ class AirSimSensors(Sensor):
     if AVAILABLE:
         def __init__(self, mediator: Mediator, logger: Logger, configData: ConfigurationData):
             super().__init__(mediator, logger, configData)
-            self._logger = logger
             self.__raw: RawData = RawData({"position"          : None,
                                            "angularVelocity"   : None,
                                            "linearAcceleration": None,
                                            "linearVelocity"    : None,
                                            "orientation"       : None}, type(self).__name__)
-            self._frequency = configData.configuration("AirSimSensors")["interval"]
+            self.__frequency = configData.ownArguments["interval"]
+            self.__name = configData.configuration("AirSimFlightController")["name"]
             self.__connected = False
         
         @process(EventType.INITIALIZATION)
@@ -33,10 +33,10 @@ class AirSimSensors(Sensor):
                 self.__connected = True
             super()._initialize(data)
         
-        def _postProcess(self):
+        def _asyncProcess(self):
             if not self.__connected:
                 return super()._postProcess()
-            kinematics = self._airsim.simGetGroundTruthKinematics()
+            kinematics = self._airsim.simGetGroundTruthKinematics(vehicle_name=self.__name)
             self.__raw["position"] = kinematics.position
             self.__raw["angularVelocity"] = kinematics.angular_velocity
             self.__raw["linearAcceleration"] = kinematics.linear_acceleration
