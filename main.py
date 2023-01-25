@@ -174,7 +174,7 @@ def main(*args: str):
         if not l or not path.isfile(*args):
             args: tuple[str] = ("config.yml",)
             changed = True
-        dir: str = "logs"  # The directory to save logs in
+        dir: str = _Logging.DIR  # The directory to save logs in
         if not path.isdir(dir):
             os.mkdir(dir)  # Create the directory if it does not exist
         # The directory to save these instances logs in:

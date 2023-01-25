@@ -12,7 +12,7 @@ if not (tiav and oav and trav and tyav and sav and ccav):
 
 class _Logging:
     """ Helper class for the Logger class - do not use directly """
-    DIR: str = ""
+    DIR: str = "logs"
     """ The directory where the log files are stored """
     CURR_CONSOLE_INPUT: str = ""
     """ The current console input, used for fixing printing in CLI """
@@ -83,7 +83,9 @@ class Logger:
         :param kwargs: "end" kwarg to pass to print()
         """
         for arg in args:
-            if arg is None:
+            if arg.endswith("\n"):
+                arg = arg[:-1]
+            if not arg:
                 continue
             output: str = Logger.__join(arg, kwargs.get("end", "\n"))  # The output to print
             category: str = f"[{self.__category}]  " if self.__category else "" # The category to print
@@ -105,7 +107,7 @@ class Logger:
         :param kwargs: "depth" kwarg for pretty printing and "end" for print()
         """
         for arg in args:
-            if arg is None:
+            if not arg:
                 continue
             lines: list[str] = []
             line: str = ""  # The current line
@@ -216,3 +218,6 @@ class Logger:
             e = Exception(msg)
         self.write(msg if msg else str(e))
         self.log(type(e).__name__, *traceback.format_exc().split("\n"))
+
+    def flush(self):
+        pass
