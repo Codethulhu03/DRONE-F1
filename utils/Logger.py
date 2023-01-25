@@ -1,3 +1,4 @@
+from compatibility.Thread import Lock
 from compatibility.Time import strftime, now, available as tiav  # For logging the timestamp
 from compatibility.OS import path, os, available as oav  # For file logging
 from compatibility.Traceback import traceback, available as trav  # For logging the traceback
@@ -12,8 +13,11 @@ if not (tiav and oav and trav and tyav and sav and ccav):
 class _Logging:
     """ Helper class for the Logger class - do not use directly """
     DIR: str = ""
-    CURR_CONSOLE_INPUT = ""
+    """ The directory where the log files are stored """
+    CURR_CONSOLE_INPUT: str = ""
     """ The current console input, used for fixing printing in CLI """
+    LOCK: Lock = Lock()
+    """ The lock used for thread safety """
 
 
 class Logger:
@@ -29,7 +33,7 @@ class Logger:
         """ The category to log to """
         self.__prettyDepth: int = -1
         """ The depth to pretty print to. -1 for unlimited """
-    
+
     def write(self, *args: Any, **kwargs: Any):
         """
         Writes the given argument to CLI and the log file of the current category
@@ -56,17 +60,14 @@ class Logger:
         :param args: arguments to write
         :param kwargs: kwargs to pass to the printer()
         """
-        for arg in args:
-            if arg is None:
-                continue
-            printer(arg, **kwargs)
-            self.log(arg, **kwargs)
-    
+        printer(*args, **kwargs)
+        self.log(*args, **kwargs)
+
     @staticmethod
     def __join(*args: Any) -> str:
         """
         Joins the given arguments to a string with spaces between them
-        
+
         :param args: The arguments to join
         :return: The joined string
         """
@@ -81,17 +82,20 @@ class Logger:
         :param args: arguments to write
         :param kwargs: "end" kwarg to pass to print()
         """
-        stdout.write("\r\033[K")  # Clear the current line
-        if self.__category:
-            stdout.write(f"[{self.__category}]  ")  # Print the category
-        output: str = Logger.__join(*args, kwargs.get("end", "\n"))  # The output to print
-        if ccav:
-            outputLower = output.lower() # The output in lower case for contains checks
-            if "exception" in outputLower or "error" in outputLower:
-                output = wrap(output, CC.F.RED, CS.BRIGHT)
-        stdout.write(output)  # Print the arguments
-        # print the last CLI input (for when text is printed while there is still input)
-        stdout.write(_Logging.CURR_CONSOLE_INPUT)
+        for arg in args:
+            if arg is None:
+                continue
+            output: str = Logger.__join(arg, kwargs.get("end", "\n"))  # The output to print
+            category: str = f"[{self.__category}]  " if self.__category else "" # The category to print
+            if ccav:
+                outputLower = output.lower() # The output in lower case for contains checks
+                if "exception" in outputLower or "error" in outputLower:
+                    output = wrap(output, CC.F.RED, CS.BRIGHT)
+            with _Logging.LOCK:
+                stdout.write(f"\r\033[K{category}{output}{_Logging.CURR_CONSOLE_INPUT}")
+                # Clear the current line and
+                # print the arguments and
+                # the last CLI input (for when text is printed while there is still input)
 
     def pprint(self, *args: Any, **kwargs: Any):
         """
@@ -100,25 +104,28 @@ class Logger:
         :param args: arguments to write
         :param kwargs: "depth" kwarg for pretty printing and "end" for print()
         """
-        lines: list[str] = []
-        line: str = ""  # The current line
-        pre: int = 0  # The number of spaces to add before the line
-        depth: int = kwargs.get("depth", self.__prettyDepth)  # The depth to pretty print to. -1 for unlimited
-        # for every pretty printed item from helper method
-        for pp in self.__ppHelper(Logger.__join(*args).replace("'", "").replace('"', ""), []):
-            # offset = 1 if the line starts with an opening bracket, -1 for a closing bracket, 0 if encased in brackets
-            offset: int = (pp[0] in ("(", "[", "{")) and not Logger.__encased(pp)
-            offset -= (pp[0] in (")", "]", "}"))
-            post: int = pre + offset
-            line += pp
-            if depth < 0 or post <= depth:  # if not max depth continue with a new fresh line, otherwise append to it
-                if lines and Logger.__encased(line):
-                    lines[-1] += line  # append to the last line if line represents a complete dict/list/tuple
-                else:
-                    lines.append(f"{''.rjust(2 * (pre + min(offset, 0)))}{line}")  # add indentation
-                line = ""
-            pre = post
-        self.print("\n".join(lines), **kwargs)  # Print the formatted lines
+        for arg in args:
+            if arg is None:
+                continue
+            lines: list[str] = []
+            line: str = ""  # The current line
+            pre: int = 0  # The number of spaces to add before the line
+            depth: int = kwargs.get("depth", self.__prettyDepth)  # The depth to pretty print to. -1 for unlimited
+            # for every pretty printed item from helper method
+            for pp in self.__ppHelper(Logger.__join(arg, kwargs.get("end", "\n")).replace("'", "").replace('"', ""), []):
+                # offset = 1 if the line starts with an opening bracket, -1 for a closing bracket, 0 if encased in brackets
+                offset: int = (pp[0] in ("(", "[", "{")) and not Logger.__encased(pp)
+                offset -= (pp[0] in (")", "]", "}"))
+                post: int = pre + offset
+                line += pp
+                if depth < 0 or post <= depth:  # if not max depth continue with a new fresh line, otherwise append to it
+                    if lines and Logger.__encased(line):
+                        lines[-1] += line  # append to the last line if line represents a complete dict/list/tuple
+                    else:
+                        lines.append(f"{''.rjust(2 * (pre + min(offset, 0)))}{line}")  # add indentation
+                    line = ""
+                pre = post
+            self.print("\n".join(lines), **kwargs)  # Print the formatted lines
 
     @staticmethod
     def __encased(s: str) -> bool:

@@ -38,6 +38,7 @@ try:
             client = airsim.MultirotorClient(ip, port, timeoutValue)
             with HiddenPrints():
                 try:
+                    self.__logger.write("Connecting to AirSim...")
                     client.confirmConnection()
                 except Exception as e:
                     self.__logger.write("Couldn't connect to Airsim. Reason: " + str(e))

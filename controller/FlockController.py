@@ -76,8 +76,6 @@ class FlockController(Controller):
         self.__minDistFlock: float = 1000
         self.__maxDistFlock: float = -1000
 
-        self.__oldData: dict[int, PartialDroneData] = {PartialDroneData)
-
     def buildFlock(self):
         """
         Create the flock

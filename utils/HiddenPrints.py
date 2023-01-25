@@ -1,25 +1,34 @@
 from compatibility.Sys import sys, stdout, stderr  # sys for sys.stdout, stdout for saved stdout reference, error same
 from compatibility.OS import path # path for path.join
+from compatibility.Thread import Lock
 from compatibility.Typing import Optional, IO
-from utils.Logger import _Logging # _Logging for DIR
+from utils.Logger import _Logging, Logger  # _Logging for DIR
 
 class HiddenPrints:
-    """
-    Class to hide prints from the console.
-    
-    .. note:: Logging will still work, only explicit print() calls will be hidden, which shouldn't be used anyway.
-    -> Use this for hiding Library prints. (ContextManager - *with HiddenPrints():*)
-    """
-
-    stderrFile: Optional[IO] = None
+    _LOCK = Lock()
+    def __init__(self, prefix: str = ""):
+        self.__oldStdout = sys.stdout
+        self.__oldStdErr = sys.stderr
+        self.__prefix = prefix
+        self.__buffer = ""
+        self.__stdout = stdout
+        self.__logger = Logger(prefix)
 
     def __enter__(self):
-        """ Redirects stdout to None and stderr to log file. """
-        sys.stdout = None
-        stderrFile = open(path.join(_Logging.DIR, "stderr.log"), "a")
-        sys.stderr = stderrFile
-    
+        HiddenPrints._LOCK.acquire()
+        sys.stdout = self
+        sys.stderr = open(path.join(_Logging.DIR, "stderr.log"), "a")
+
     def __exit__(self, exc_type, exc_val, exc_tb):
-        """ Restores stdout and stderr. """
-        sys.stdout = stdout
-        sys.stderr = stderr
+        self.flush()
+        sys.stdout = self.__oldStdout
+        sys.stderr = self.__oldStdErr
+        HiddenPrints._LOCK.release()
+
+    def write(self, message):
+        self.__buffer += message
+
+    def flush(self):
+        buf = self.__buffer
+        self.__buffer = ""
+        self.__logger.write(*buf.splitlines())
