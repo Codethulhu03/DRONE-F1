@@ -329,7 +329,7 @@ class FlockController(Controller):
         # self._logger.log(newPosition, speed)
         # ^^ Your code above ^^
 
-        # return CommandData(cmd=Command.CHANGE_COURSE, msg={"target": newPosition, "speed": speed})
+        # return CommandData(cmd=Command.CHANGE_COURSE, msg={"target": newPosition, "speed": speed, "updateCurrent": False})
         return None
 
     # Method for interval-based calls (e.g. every second)
