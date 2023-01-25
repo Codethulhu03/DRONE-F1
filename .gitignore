@@ -5,4 +5,5 @@
 simulation/AirSimEnvironments/*
 .vscode
 .venv
+logs
 home
