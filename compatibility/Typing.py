@@ -5,7 +5,7 @@ try:
     from typing import (TypeVar as ttypevar, Callable as tcallable, Any as tany, Optional as toptional,
                         SupportsIndex as tsi, Collection as tcollection, ItemsView as tiv, List as tlist,
                         Iterable as titerable, Union as tunion, Dict as tdict, get_origin as tgo, get_args as tga,
-                        Mapping as tmap, Type as ttype)
+                        Mapping as tmap, Type as ttype, IO as tio)
     
     TypeVar = ttypevar
     Callable = tcallable
@@ -22,7 +22,10 @@ try:
     get_args = tga
     get_origin = tgo
     Type = ttype
-except Exception:
+    IO = tio
+except Exception as e:
+    from utils.SysInfo import InfoCache
+    InfoCache.importErrors.append(e)
     available = False
     print(f"Module not installed: {__name__}")
     TypeVar = None
@@ -40,3 +43,4 @@ except Exception:
     get_args = notImplemented
     get_origin = notImplemented
     Type = None
+    IO = None

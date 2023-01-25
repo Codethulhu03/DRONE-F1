@@ -29,7 +29,9 @@ try:
     def write(data: dict[str, Any], file: str):
         with open(file, "w", encoding="utf8") as stream:
             dump(data, stream, default_flow_style=False, allow_unicode=True, Dumper=IgnAliDump)
-except Exception:
+except Exception as e:
+    from utils.SysInfo import InfoCache
+    InfoCache.importErrors.append(e)
     available = False
     print(f"Module not installed: {__name__}")
     yamlError = None

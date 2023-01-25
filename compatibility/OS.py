@@ -7,7 +7,9 @@ try:
     os = osComp
     devnull = os.devnull
     path = os.path
-except Exception:
+except Exception as e:
+    from utils.SysInfo import InfoCache
+    InfoCache.importErrors.append(e)
     available = False
     print(f"Module not installed: {__name__}")
     os = None

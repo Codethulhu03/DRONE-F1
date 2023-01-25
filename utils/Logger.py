@@ -1,12 +1,13 @@
-from compatibility.Time import strftime, now  # For logging the timestamp
-from compatibility.OS import path, os  # For file logging
-from compatibility.Traceback import traceback
-from compatibility.Typing import Any, Callable  # For type hints
-from compatibility.Sys import stdout  # For logging to stdout (CLI output)
-from compatibility.ConsoleColor import (ConsoleColor as CC, ConsoleStyle as CS, wrap, available,
+from compatibility.Time import strftime, now, available as tiav  # For logging the timestamp
+from compatibility.OS import path, os, available as oav  # For file logging
+from compatibility.Traceback import traceback, available as trav  # For logging the traceback
+from compatibility.Typing import Any, Callable, available as tyav  # For type hints
+from compatibility.Sys import stdout, available as sav  # For logging to stdout (CLI output)
+from compatibility.ConsoleColor import (ConsoleColor as CC, ConsoleStyle as CS, wrap, available as ccav,
                                         strip) # For coloring the output
-from utils.HiddenPrints import HiddenPrints
 
+if not (tiav and oav and trav and tyav and sav and ccav):
+    raise ImportError("One or more required modules are not available.")
 
 class _Logging:
     """ Helper class for the Logger class - do not use directly """
@@ -80,18 +81,17 @@ class Logger:
         :param args: arguments to write
         :param kwargs: "end" kwarg to pass to print()
         """
-        with HiddenPrints():
-            stdout.write("\r\033[K")  # Clear the current line
-            if self.__category:
-                stdout.write(f"[{self.__category}]  ")  # Print the category
-            output: str = Logger.__join(*args, kwargs.get("end", "\n"))  # The output to print
-            if available:
-                outputLower = output.lower() # The output in lower case for contains checks
-                if "exception" in outputLower or "error" in outputLower:
-                    output = wrap(output, CC.F.RED, CS.BRIGHT)
-            stdout.write(output)  # Print the arguments
-            # print the last CLI input (for when text is printed while there is still input)
-            stdout.write(_Logging.CURR_CONSOLE_INPUT)
+        stdout.write("\r\033[K")  # Clear the current line
+        if self.__category:
+            stdout.write(f"[{self.__category}]  ")  # Print the category
+        output: str = Logger.__join(*args, kwargs.get("end", "\n"))  # The output to print
+        if ccav:
+            outputLower = output.lower() # The output in lower case for contains checks
+            if "exception" in outputLower or "error" in outputLower:
+                output = wrap(output, CC.F.RED, CS.BRIGHT)
+        stdout.write(output)  # Print the arguments
+        # print the last CLI input (for when text is printed while there is still input)
+        stdout.write(_Logging.CURR_CONSOLE_INPUT)
 
     def pprint(self, *args: Any, **kwargs: Any):
         """
@@ -201,7 +201,11 @@ class Logger:
             for arg in args:
                 file.write(f"[{now().strftime('%H:%M:%S')}] {strip(str(arg))}\n")
 
-    @staticmethod
-    def error(e: Exception, msg: str = ""):
-        Logger("exception").write(msg if msg else str(e))
-        Logger("exception").log(type(e).__name__, *traceback.format_exc().split("\n"))
+    def error(self, e: Exception = None, msg: str = ""):
+        if isinstance(self, Exception):
+            e = self
+            self = Logger("exception")
+        if e is None:
+            e = Exception(msg)
+        self.write(msg if msg else str(e))
+        self.log(type(e).__name__, *traceback.format_exc().split("\n"))

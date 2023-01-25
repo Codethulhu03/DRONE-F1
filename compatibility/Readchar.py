@@ -6,7 +6,9 @@ try:
     
     readkey = rcreadkey
     key = rckey
-except Exception:
+except Exception as e:
+    from utils.SysInfo import InfoCache
+    InfoCache.importErrors.append(e)
     available = False
     print(f"Module not installed: {__name__}")
     readkey = notImplemented

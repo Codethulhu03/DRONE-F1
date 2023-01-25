@@ -1,2 +1,2 @@
 def notImplemented(*args, **kwargs):
-    raise NotImplementedError("This is not supposed to happen")
+    raise NotImplementedError(f"Function couldn't be imported - {args}, {kwargs}")

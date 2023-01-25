@@ -78,9 +78,18 @@ class Module(Thread, EventProcessor):
         pass
 
     def __run(self):
+        _errorCount: int = 0
         while self.__powered:
             while self._active or self._queue:
-                self._asyncProcess()
+                try:
+                    self._asyncProcess()
+                except Exception as e:
+                    self._logger.error(e, f"Error in async process: {str(e)}")
+                    _errorCount += 1
+                    if _errorCount > 10:
+                        self._logger.error(e, "Assuming critical error based on occurence, shutting down this module")
+                        self.deactivate(True)
+                        break
                 sleep(self._interval)
 
     def _asyncProcess(self):
@@ -95,7 +104,7 @@ class Module(Thread, EventProcessor):
                 condOp()
             self.__cond.release()
         except RuntimeError as e:
-            print(e)
+            self._logger.error(e)
     
     def __wait(self, timeout: float = None):
         self.__condOp(self.__cond.wait, timeout)
@@ -110,13 +119,26 @@ class Module(Thread, EventProcessor):
     def run(self):
         asyncThread: Thread = Thread(target=self.__run, daemon=True)
         asyncThread.start()
+        _errorCount: int = 0
         while self.__powered:
             if not self._queue:
                 self.__wait()
             while self._active or self._queue:
-                self._preProcess()
+                try:
+                    self._preProcess()
+                except Exception as e:
+                    self._logger.error(e, f"Error in preprocess: {str(e)}")
+                    _errorCount += 1
                 self._process()
-                self._postProcess()
+                try:
+                    self._postProcess()
+                except Exception as e:
+                    self._logger.error(e, f"Error in postprocess: {str(e)}")
+                    _errorCount += 1
+                if _errorCount > 10:
+                    self._logger.error(e, "Assuming critical error based on occurence, shutting down this module")
+                    self.deactivate(True)
+                    break
                 if self.__powered:
                     self.__wait(self._interval)
         self._logger.write("Waiting for async thread to finish")

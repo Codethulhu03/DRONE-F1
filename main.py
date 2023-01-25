@@ -7,9 +7,8 @@ from communication.CommandData import CommandData
 from compatibility.ConsoleColor import ConsoleColor as CC, ConsoleStyle as CS, wrap
 from compatibility.Itertools import chain
 from compatibility.OS import path, os
-from compatibility.Traceback import traceback
 from compatibility.Sys import sys, argv
-from compatibility.Time import sleep, strftime, now
+from compatibility.Time import sleep, now
 from compatibility.Types import TracebackType
 from compatibility.Typing import Any, Optional, Type, Callable
 from compatibility.AirSim import airsimClient, available as AirSimAvailable
@@ -19,6 +18,7 @@ from drone.UAV import UAV
 from utils.CLI import Executor, CLI, helptext
 from utils.Configuration import Configuration
 from utils.Logger import Logger, _Logging
+from utils.SysInfo import InfoCache
 from utils.events.Event import Event
 from utils.events.EventType import EventType
 from utils.math.Vector import Vector3
@@ -186,6 +186,9 @@ def main(*args: str):
         if changed:
             Logger("__main__").write(f"Configuration file {'does not exist' * l}{'missing as argument' * (not l)}"
                                      f", using config.yml")
+        siLogger: Logger = Logger("SysInfo")
+        for Exception in InfoCache.getImportErrors():
+            siLogger.error(Exception)
         Main(*args)
 
 

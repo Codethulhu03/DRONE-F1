@@ -90,7 +90,7 @@ class Executor:
         except Exception as e:
             if len(args) == 1:
                 args = tuple(args[0].split(" "))
-            Logger.error(e, f"Error in {args[0]}{args[1:]}: {e.__class__.__name__} - {e}")
+            self._logger.error(e, f"Error in {args[0]}{args[1:]}: {e.__class__.__name__} - {e}")
     
     def _exit(self, msg: str = "EXITING..."):
         self._logger.print(wrap(msg, CC.F.RED, CS.BRIGHT))
@@ -157,10 +157,8 @@ class CLI:
         if completions is None:
             completions = set()
         if not self.__useOwn:
-            if containsStyling(prompt):
-                print(prompt, end="")
-                prompt = ""
-            return input(prompt).strip()
+            stdout.write(f"\r\033[K{prompt}")
+            return input().strip()
         index: int = 1
         matches: list[str] = []
         matchInd: int = 0

@@ -12,7 +12,9 @@ try:
     def read(loc: str) -> dict:
         with open(loc) as file:
             return JsonLoad(file)
-except Exception:
+except Exception as e:
+    from utils.SysInfo import InfoCache
+    InfoCache.importErrors.append(e)
     available = False
     print(f"Module not installed: {__name__}")
     dumps = notImplemented

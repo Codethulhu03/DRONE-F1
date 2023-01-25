@@ -3,20 +3,24 @@ from compatibility.NotImplemented import notImplemented
 available: bool = True
 try:
     import sys as sysNew
-    from sys import getsizeof, argv as sysArgv, stdin as sysIn, version as sysVersion
+    from sys import getsizeof, argv as sysArgv, version as sysVersion
     
     version = sysVersion
-    stdin = sysIn
+    stdin = sysNew.stdin
     stdout = sysNew.stdout
+    stderr = sysNew.stderr
     argv = sysArgv
     sizeof = getsizeof
     sys = sysNew
-except Exception:
+except Exception as e:
+    from utils.SysInfo import InfoCache
+    InfoCache.importErrors.append(e)
     available = False
     print(f"Module not installed: {__name__}")
     version = None
     stdin = None
     stdout = None
+    stderr = None
     argv = None
     sizeof = notImplemented
     sys = None

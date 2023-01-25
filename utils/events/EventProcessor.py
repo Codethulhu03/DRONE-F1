@@ -2,6 +2,7 @@ from compatibility.Copy import deepcopy
 from compatibility.Typing import Callable
 from compatibility.Enum import Enum
 from utils.Data import Data
+from utils.Logger import Logger
 from utils.events.Event import Event
 from utils.events.EventDecorators import EventDecoratorHelper, processAny
 from utils.events.EventType import EventType
@@ -44,7 +45,10 @@ class EventProcessor(Notifiable):
         event = self._queue.pop(0)
         if hash(type(self).__name__) != event.caller:
             for handler in self._handlers[event.type]:
-                handler(self, deepcopy(event.data))
+                try:
+                    handler(self, deepcopy(event.data))
+                except Exception as e:
+                    self._logger.error(e, f"Error in {type(self).__name__} while processing {event.type.name}")
     
     def __processAll(self):
         while self._queue:
