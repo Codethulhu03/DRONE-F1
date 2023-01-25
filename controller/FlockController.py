@@ -85,7 +85,7 @@ class FlockController(Controller):
         self.__members.clear()
         for neighbour in self._data.neighbours.values():
             if (neighbour["flockGroup"] == self.__flockGroup
-                    and self.getVectorToNeighbour(neighbour).magnitude < self.__flockArea):
+                    and self.getVectorToNeighbour(neighbour).magnitude < self.__flockMaxDistance):
                 insort(self.__members, neighbour, key=lambda x: self.getVectorToNeighbour(x).magnitude)
         if not self.__membersFilter or len(self.__members) <= 2:
             return
