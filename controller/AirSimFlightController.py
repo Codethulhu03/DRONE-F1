@@ -166,7 +166,7 @@ class AirSimFlightController(FlightController):
         @evaluate(EventType.DRONE_DATA_UPDATE)
         def _goto(self, data: CommandData) -> PartialDroneData:
             if not self.__connected:
-                return PartialDroneData()
+                return None
             updateCurrentTarget: bool = data.msg.get("updateCurrentTarget", True)
             target: Vector3 = data.msg["target"] - self.__home
             if self._currentTarget != target:
