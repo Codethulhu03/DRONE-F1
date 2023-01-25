@@ -168,13 +168,13 @@ class AirSimFlightController(FlightController):
             if not self.__connected:
                 return PartialDroneData()
             updateCurrentTarget: bool = data.msg.get("updateCurrentTarget", True)
-            target = data.msg["target"]
+            target = data.msg["target"] - self._home
             if self._currentTarget != target:
                 self._airsim.enableApiControl(True, vehicle_name=self._config["name"])
                 self._airsim.moveToPositionAsync(
-                        target[0] - self.__home[0], target[1] - self.__home[1], -target[2] + self.__home[2],
+                        target[0], target[1], -target[2],
                         data.msg["speed"], vehicle_name=self._config["name"])
                 if updateCurrentTarget:
                     self._currentTarget = target
-                self._route.append(target)
-            return PartialDroneData({"state": DroneState.FLYING_TO_GOAL, "currentTarget": target})
+                    self._route.append(target)
+            return PartialDroneData({"state": DroneState.FLYING_TO_GOAL, "currentTarget": self._currentTarget})
