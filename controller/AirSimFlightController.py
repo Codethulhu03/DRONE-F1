@@ -130,6 +130,7 @@ class AirSimFlightController(FlightController):
             self._airsim.takeoffAsync(vehicle_name=self._config["name"])
             self._airsim.moveToZAsync(
                     -data.msg["takeOffAltitude"], data.msg["speed"], vehicle_name=self._config["name"])
+            self._currentTarget = self._data.position + Vector3(0, 0, data.msg["takeOffAltitude"])
             return PartialDroneData({"state": DroneState.AT_START})
         
         @process(EventType.COMMAND_POS_HOLD)
