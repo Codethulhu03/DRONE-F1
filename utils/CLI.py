@@ -1,3 +1,5 @@
+import sys
+
 from compatibility.ConsoleColor import ConsoleColor as CC, ConsoleStyle as CS, wrap, containsStyling
 from compatibility.Difflib import get_close_matches as closestMatch
 from compatibility.Functools import wraps
@@ -8,7 +10,7 @@ from compatibility.Readchar import readkey, key as KEY, available
 from compatibility.Regex import match as reMatch, IGNORECASE as reIgnoreCase, error as reError
 from compatibility.Socket import gethostname
 from compatibility.Sys import stdout, stdin, version
-from compatibility.Time import time, now
+from compatibility.Time import time, now, sleep
 from compatibility.Traceback import traceback
 from compatibility.Typing import TypeVar, Callable, Any
 from utils.Logger import Logger, _Logging
@@ -157,8 +159,13 @@ class CLI:
         if completions is None:
             completions = set()
         if not self.__useOwn:
-            stdout.write(f"\r\033[K{prompt}")
-            return input().strip()
+            while sys.stdout is None:
+                stdout.write("waiting for stdout to be available...")
+                sleep(1)
+            if containsStyling(prompt):
+                stdout.write(f"\r\033[K{prompt}")
+                prompt = ""
+            return input(prompt).strip()
         index: int = 1
         matches: list[str] = []
         matchInd: int = 0
