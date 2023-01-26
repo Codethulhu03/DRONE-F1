@@ -83,12 +83,14 @@ class Logger:
         :param kwargs: "end" kwarg to pass to print()
         """
         for arg in args:
+            if not arg:
+                continue
             if arg.endswith("\n"):
                 arg = arg[:-1]
             if not arg:
                 continue
             output: str = Logger.__join(arg, kwargs.get("end", "\n"))  # The output to print
-            category: str = f"[{self.__category}]  " if self.__category else "" # The category to print
+            category: str = f"[{self.__category}]  " if self.__category else ""  # The category to print
             if ccav:
                 outputLower = output.lower() # The output in lower case for contains checks
                 if "exception" in outputLower or "error" in outputLower:

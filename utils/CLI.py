@@ -4,19 +4,17 @@ from compatibility.ConsoleColor import ConsoleColor as CC, ConsoleStyle as CS, w
 from compatibility.Difflib import get_close_matches as closestMatch
 from compatibility.Functools import wraps
 from compatibility.Getpass import getuser
-from compatibility.OS import path, os
 from compatibility.Platform import system
-from compatibility.Readchar import readkey, key as KEY, available
+from compatibility.Readchar import readkey, key as KEY, available as rcAvailable
 from compatibility.Regex import match as reMatch, IGNORECASE as reIgnoreCase, error as reError
 from compatibility.Socket import gethostname
 from compatibility.Sys import stdout, stdin, version
-from compatibility.Time import time, now, sleep
-from compatibility.Traceback import traceback
+from compatibility.Time import sleep
 from compatibility.Typing import TypeVar, Callable, Any
 from utils.Logger import Logger, _Logging
 
-from compatibility.Termios import tcgetattr, error as termiosError, available
-USE_TERMIOS: bool = available and system() != "Windows"
+from compatibility.Termios import tcgetattr, error as termiosError, available as tAvailable
+USE_TERMIOS: bool = tAvailable and rcAvailable and system() != "Windows"
 
 F = TypeVar('F', bound=Callable[..., Any])
 

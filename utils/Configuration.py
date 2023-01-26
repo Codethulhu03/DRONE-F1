@@ -1,22 +1,37 @@
-from compatibility.Typing import Any
+from compatibility.Itertools import chain
+from compatibility.Typing import Any, Callable, Iterable
 import compatibility.Yaml as yaml
 from compatibility.OS import os
 
+from utils.Subtypes import getSubTypeList
 from utils.ConfigurationData import ConfigurationData
 import communication
 import controller
 import drone
 import sensing
 
-fcsub = [cls for cls in controller.FlightController.__subclasses__() if cls.AVAILABLE]
-ccsub = [cls for cls in controller.ChannelController.__subclasses__() if cls.AVAILABLE]
-csub = [cls for cls in controller.Controller.__subclasses__()
-        if cls.__name__ not in ("FlightController", "ChannelController") and cls.AVAILABLE]
-ssub = [cls for cls in sensing.Sensor.__subclasses__() if cls.AVAILABLE]
-esub = [cls for cls in sensing.Evaluator.__subclasses__() if cls.AVAILABLE]
-commsub = [cls for cls in communication.CommunicationInterface.__subclasses__() if cls.AVAILABLE]
-modsub = [cls for cls in drone.Module.__subclasses__()
-          if cls.__name__ not in ("CommunicationInterface", "Controller", "Sensor", "Evaluator") and cls.AVAILABLE]
+
+
+fcsub: list[type] = list(filter(lambda cls: cls.AVAILABLE and not cls.__name__.endswith("Base"),
+                               getSubTypeList(controller.FlightController)))
+ccsub: list[type] = list(filter(lambda cls: cls.AVAILABLE and not cls.__name__.endswith("Base"),
+                               getSubTypeList(controller.ChannelController)))
+csub: list[type] = list(filter(lambda cls: cls.AVAILABLE and not cls.__name__.endswith("Base")
+                                          and cls.__name__ not in ("FlightController", "ChannelController")
+                                          and cls not in chain(fcsub, ccsub),
+                              getSubTypeList(controller.Controller)))
+ssub: list[type] = list(filter(lambda cls: cls.AVAILABLE and not cls.__name__.endswith("Base"),
+                              getSubTypeList(sensing.Sensor)))
+esub: list[type] = list(filter(lambda cls: cls.AVAILABLE and not cls.__name__.endswith("Base"),
+                              getSubTypeList(sensing.Evaluator)))
+commsub: list[type] = list(filter(lambda cls: cls.AVAILABLE and not cls.__name__.endswith("Base"),
+                                 getSubTypeList(communication.CommunicationInterface)))
+modsub: list[type] = list(filter(lambda cls: cls.AVAILABLE and not cls.__name__.endswith("Base")
+                                            and cls.__name__ not in ("FlightController", "ChannelController",
+                                                                     "CommunicationInterface", "Controller", "Sensor",
+                                                                     "Evaluator")
+                                            and cls not in chain(fcsub, ccsub, csub, ssub, esub, commsub),
+                                getSubTypeList(drone.Module)))
 
 
 class Configuration:
@@ -33,8 +48,7 @@ class Configuration:
     
     SPEC = {
             "available"    : AVAILABLE,
-            "configuration": {k.__name__: k.ARGS for sub in (fcsub, ccsub, csub, ssub, esub, commsub, modsub)
-                              for k in sub},
+            "configuration": {k.__name__: k.ARGS for k in chain(fcsub, ccsub, csub, ssub, esub, commsub, modsub)},
             "drone"        : {"descriptor": "",
                               "id"        : -1,
                               "home"      : "(0.0, 0.0)"},

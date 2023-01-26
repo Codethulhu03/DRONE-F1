@@ -1,7 +1,3 @@
-import communication
-import controller
-import drone
-import sensing
 from communication.Command import Command
 from communication.CommandData import CommandData
 from compatibility.ConsoleColor import ConsoleColor as CC, ConsoleStyle as CS, wrap
@@ -18,10 +14,12 @@ from drone.UAV import UAV
 from utils.CLI import Executor, CLI, helptext
 from utils.Configuration import Configuration
 from utils.Logger import Logger, _Logging
+from utils.Subtypes import getSubTypeList
 from utils.SysInfo import InfoCache
 from utils.events.Event import Event
 from utils.events.EventType import EventType
 from utils.math.Vector import Vector3
+
 
 class Main(Executor):
     VERSION: str = "0.0.0"
@@ -45,7 +43,7 @@ class Main(Executor):
             try:
                 self.__configuration: Configuration = Configuration(config)
             except AttributeError as aError:
-                self._logger.write(aError)
+                self._logger.error(aError)
                 if i:
                     self._logger.write("Could not load Configuration")
                     self._exit()
@@ -69,16 +67,7 @@ class Main(Executor):
     
     def __initializeModules(self):
         moduleCollection: dict[str, set[str]] = self.__configuration.moduleCollection
-        superclasses: dict[str, type] = {
-                "flight"       : controller.FlightController,
-                "channels"     : controller.ChannelController,
-                "controllers"  : controller.Controller,
-                "sensors"      : sensing.Sensor,
-                "evaluators"   : sensing.Evaluator,
-                "communication": communication.CommunicationInterface,
-                "unknown"      : drone.Module
-                }
-        self.__modules = {cat: [self.__findModule(module, superclasses[cat])
+        self.__modules = {cat: [self.__findModule(module, Module)
                                 (self.__uav, Logger(module), self.__configuration.data)
                                 for module in modules]
                           for cat, modules in moduleCollection.items()}
@@ -90,7 +79,7 @@ class Main(Executor):
 
     @staticmethod
     def __findModule(moduleName: str, superclass: Any) -> type(Module):
-        for cls in superclass.__subclasses__():
+        for cls in getSubTypeList(superclass):
             if cls.__name__ == moduleName:
                 return cls
         raise AttributeError(f"Module {moduleName} not found")
