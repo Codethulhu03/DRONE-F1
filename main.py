@@ -22,11 +22,14 @@ from utils.math.Vector import Vector3
 
 
 class Main(Executor):
-    VERSION: str = "0.0.0"
+    VERSION: str = "0.2.1"
+    """ Software version to print """
     EXIT_CALL: Callable = None
     KILL: bool = False
-    
-    def __init__(self, config: str):
+    CONFIG_FILE: str = ""
+    HEADLESS: bool = False
+
+    def __init__(self):
         super().__init__(Logger())
         Main.EXIT_CALL = self._exit
         self.__cli = CLI(self, self._logger)
@@ -41,7 +44,7 @@ class Main(Executor):
                 }
         for i in range(2):
             try:
-                self.__configuration: Configuration = Configuration(config)
+                self.__configuration: Configuration = Configuration(Main.CONFIG_FILE)
             except AttributeError as aError:
                 self._logger.error(aError)
                 if i:
@@ -50,6 +53,8 @@ class Main(Executor):
                 else:
                     self._logger.write("Trying again...")
         self.__uav: UAV = UAV(self.__configuration.data)
+
+    def start(self):
         self.__uav.notify(Event(EventType.POWER_UP, self.__uav.data))
         if AirSimAvailable:
             airsimClient.passArguments(self.__configuration.data.configuration("AirSimFlightController"),
@@ -57,13 +62,13 @@ class Main(Executor):
         self.__initializeModules()
         self.__uav.notify(Event(EventType.INITIALIZATION, self.__uav.data))
         sys.excepthook = self.__exceptionHook
-        self.__cli.start()
+        if not Main.HEADLESS:
+            self.__cli.start()
         for thread in chain(*self.__modules.values()):
             try:
                 thread.join()
             except RuntimeError:
                 pass
-        sleep(0.5)
     
     def __initializeModules(self):
         moduleCollection: dict[str, set[str]] = self.__configuration.moduleCollection
@@ -158,27 +163,31 @@ class Main(Executor):
 
 def main(*args: str):
     while not Main.KILL:
-        changed: bool = False
         l: int = len(args)
-        if not l or not path.isfile(*args):
-            args: tuple[str] = ("config.yml",)
-            changed = True
-        dir: str = _Logging.DIR  # The directory to save logs in
-        if not path.isdir(dir):
-            os.mkdir(dir)  # Create the directory if it does not exist
-        # The directory to save these instances logs in:
+        for arg in args:
+            if arg.startswith("--"):
+                arg = arg[2:]
+                if arg.lower() == "headless":
+                    Main.HEADLESS = True
+                l -= 1
+            elif path.isfile(arg) and not Main.CONFIG_FILE:
+                Main.CONFIG_FILE = arg
 
-        dir = path.join(dir,  f"{now().strftime('%Y-%m-%d %H-%M-%S')} ({path.basename(' '.join(args))})")
+        dir: str = path.join(_Logging.DIR,  f"{now().strftime('%Y-%m-%d %H-%M-%S')} ({path.basename(' '.join(args))})")
+        """ The directory to save these instances logs in: """
         if not path.isdir(dir):
             os.mkdir(dir)  # Create the directory if it does not exist
         _Logging.DIR = dir
-        if changed:
+
+        if not Main.CONFIG_FILE:
             Logger("__main__").write(f"Configuration file {'does not exist' * l}{'missing as argument' * (not l)}"
                                      f", using config.yml")
+            Main.CONFIG_FILE = "config.yml"
+
         siLogger: Logger = Logger("SysInfo")
         for Exception in InfoCache.getImportErrors():
             siLogger.error(Exception)
-        Main(*args)
+        Main().start()
 
 
 if __name__ == "__main__":

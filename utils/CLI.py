@@ -40,7 +40,7 @@ def helptext(text: str, arg: str = "", pretty: bool = False):
 
 
 class Executor:
-    VERSION: str = "0.1.1"
+    VERSION: str = "0.0.0"
     """ Software version to print """
     P_ARGS: set = {"-p", "--p", "--pretty", "-pretty"}
     """ Pretty printing arguments """
@@ -116,7 +116,7 @@ class CLI:
     
     def start(self):
         self.__running = True
-        desc: str = f"{wrap('DRONE', CC.F.LIGHTCYAN_EX, CS.BRIGHT)} version {wrap(Executor.VERSION, CS.DIM)}"
+        desc: str = f"{wrap('DRONE', CC.F.LIGHTCYAN_EX, CS.BRIGHT)} version {wrap(self.__exe.VERSION, CS.DIM)}"
         host: str = f"{wrap(getuser(), CC.F.BLUE)}@{wrap(gethostname(), CC.F.MAGENTA)}"
         self.__logger.write(f"Running {desc} created",
                             "   by Tobias Fischer & Lars Leferenz",

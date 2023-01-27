@@ -14,6 +14,8 @@ class _Logging:
     """ Helper class for the Logger class - do not use directly """
     DIR: str = "logs"
     """ The directory where the log files are stored """
+    if not path.isdir(DIR):
+        os.mkdir(DIR)
     CURR_CONSOLE_INPUT: str = ""
     """ The current console input, used for fixing printing in CLI """
     LOCK: Lock = Lock()
