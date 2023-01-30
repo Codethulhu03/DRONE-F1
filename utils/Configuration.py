@@ -1,7 +1,9 @@
 from compatibility.Itertools import chain
+from compatibility.Functools import cache
 from compatibility.Typing import Any, Callable, Iterable
 import compatibility.Yaml as yaml
 from compatibility.OS import os
+from drone import Module
 
 from utils.Subtypes import getSubTypeList
 from utils.ConfigurationData import ConfigurationData
@@ -33,6 +35,23 @@ modsub: list[type] = list(filter(lambda cls: cls.AVAILABLE and not cls.__name__.
                                             and cls not in chain(fcsub, ccsub, csub, ssub, esub, commsub),
                                 getSubTypeList(drone.Module)))
 
+@cache
+def getArgs(cls: type) -> dict[str, Any]:
+    """ Get the arguments of a class """
+    args = cls.ARGS.copy() if hasattr(cls, "ARGS") else {}
+    if not hasattr(cls, "_asyncProcess") or cls._asyncProcess == Module._asyncProcess:
+        del args["interval"]
+    return None if not args else args
+
+def dictUpdate(d: dict, u: dict) -> dict:
+    """ Update a dict with another dict """
+    for k, v in u.items():
+        if k in d:
+            if isinstance(v, dict):
+                d[k] = dictUpdate(d[k], v)
+            else:
+                d[k] = v
+    return d
 
 class Configuration:
     AVAILABLE = {
@@ -48,7 +67,8 @@ class Configuration:
     
     SPEC = {
             "available"    : AVAILABLE,
-            "configuration": {k.__name__: k.ARGS for k in chain(fcsub, ccsub, csub, ssub, esub, commsub, modsub)},
+            "configuration": {k.__name__: getArgs(k)
+                              for k in chain(fcsub, ccsub, csub, ssub, esub, commsub, modsub) if getArgs(k)},
             "drone"        : {"descriptor": "",
                               "id"        : -1,
                               "home"      : "(0.0, 0.0)"},
@@ -63,7 +83,9 @@ class Configuration:
                     "unknown"      : []
                     }
             }
-    
+
+    OVERRIDE: bool = False
+
     def __init__(self, file: str):
         if not (file.endswith("yaml") or file.endswith("yml")):
             raise ValueError("Configuration must be of type YAML")
@@ -79,14 +101,23 @@ class Configuration:
         self.__dict["available"] = Configuration.AVAILABLE
         yaml.write(self.__dict, file)
         if not self.__check(Configuration.SPEC, self.__dict):
-            self.__defaults(file)
+            self.__defaults(file, self.__dict if not self.OVERRIDE else None)
         if not self.__available(self.AVAILABLE):
-            raise AttributeError("Requested modules not available")
+            d = self.__dict.copy()
+            for k, v in d["modules"].items():
+                if k == "flight" and v not in self.AVAILABLE[k]:
+                    d["modules"][k] = "FlightlessFlightController"
+                elif k != "flight":
+                    d["modules"][k] = list(filter(lambda x: x in self.AVAILABLE[k], v))
+            self.__defaults(file, d, AttributeError("Requested modules not available"))
     
-    def __defaults(self, file: str):
+    def __defaults(self, file: str, update=None,
+                   ae: AttributeError = AttributeError("Configuration file bad, loading defaults")):
+        if update is None:
+            update = {}
         os.replace(file, file.replace(".yml", ".backup.yml", 1).replace(".yaml", ".backup.yaml", 1))
-        yaml.write(Configuration.SPEC, file)
-        raise AttributeError("Configuration file bad, loading defaults")
+        yaml.write(dictUpdate(Configuration.SPEC.copy(), update), file)
+        raise ae
     
     def __check(self, check: dict[str, Any], spec: dict[str, Any]):
         return (check.keys() == spec.keys()

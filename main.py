@@ -42,12 +42,13 @@ class Main(Executor):
                 "communication": [],
                 "unknown"      : []
                 }
-        for i in range(2):
+        for i in range(3):
             try:
                 self.__configuration: Configuration = Configuration(Main.CONFIG_FILE)
             except AttributeError as aError:
+                Configuration.OVERRIDE = bool(i)
                 self._logger.error(aError)
-                if i:
+                if i == 2:
                     self._logger.write("Could not load Configuration")
                     self._exit()
                 else:

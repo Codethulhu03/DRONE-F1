@@ -26,7 +26,7 @@ class Module(Thread, EventProcessor):
         self._logger: Logger = logger
         self._active: bool = False
         self._configData: ConfigurationData = configData
-        self._interval: float = configData.ownArguments["interval"]
+        self._interval: Optional[float] = configData.ownArguments.get("interval", None)
         self._priority: PriorityClass = PriorityClass.NORMAL
 
     @process(EventType.INITIALIZATION)
@@ -117,8 +117,9 @@ class Module(Thread, EventProcessor):
         self.__notify()
     
     def run(self):
-        asyncThread: Thread = Thread(target=self.__run, daemon=True)
-        asyncThread.start()
+        if self._interval:
+            asyncThread: Thread = Thread(target=self.__run, daemon=True)
+            asyncThread.start()
         _errorCount: int = 0
         while self.__powered:
             if not self._queue:
@@ -141,6 +142,7 @@ class Module(Thread, EventProcessor):
                     break
                 if self.__powered:
                     self.__wait(self._interval)
-        self._logger.write("Waiting for async thread to finish")
-        asyncThread.join()
+        if self._interval:
+            self._logger.write("Waiting for async thread to finish")
+            asyncThread.join()
         self._logger.write("Powered down")

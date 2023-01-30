@@ -37,4 +37,4 @@ class ConfigurationData(Data):
         return self.configuration(lastEl)
     
     def configuration(self, cls: str) -> Data:
-        return self["configuration"][cls]
+        return self["configuration"].get(cls, Data({}))

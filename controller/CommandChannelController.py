@@ -15,9 +15,6 @@ class CommandChannelController(ChannelController):
     
     def __init__(self, mediator: Mediator, logger: Logger, configData: ConfigurationData):
         super().__init__(mediator, logger, configData, CommunicationChannels.COMMAND_CHANNEL)
-
-    def _postProcess(self):
-        pass
     
     @processAny(EventType.COMMAND_LAND, EventType.COMMAND_START, EventType.COMMAND_CHANGE_COURSE)
     @evaluate(EventType.SEND_PACKET)

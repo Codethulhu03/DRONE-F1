@@ -20,8 +20,6 @@ available:
   - AirSimSensors
   unknown: []
 configuration:
-  AirSimEvaluator:
-    interval: 1.0
   AirSimFlightController:
     autoLaunchAirsim: false
     environmentConfig:
@@ -40,9 +38,8 @@ configuration:
       X: 0
       Y: 0
       Z: 0
-    interval: 1.0
     ip: ''
-    name: ''
+    name: UAV1
     port: 41451
     sensorFrequency: 0.5
     timeoutValue: 3600000
@@ -51,13 +48,10 @@ configuration:
     interval: 1.0
   BroadUDP:
     digestion: NONE
-    interval: 1.0
     port: 1337
     target-address: 255.255.255.255
   CommandChannelController:
     commInterface: '*'
-    interval: 1.0
-  FlightlessFlightController:
     interval: 1.0
   FlockController:
     PositionTolerance: 1.0
@@ -66,11 +60,10 @@ configuration:
     flightStep: 10.0
     flockArea: 200.0
     flockDistance: 8.6
-    flockGroup: 1
+    flockGroup: 0
     flockHysteresis: 0.0
     flockMaxDistance: 12.2
     flockMinDistance: 5.0
-    interval: 1.0
     membersFilter: true
     membersLimit: 2
     ownVelocityWeight: 0.5
@@ -78,27 +71,27 @@ configuration:
     similarityThreshold: 25
   LocalUDP:
     digestion: NONE
-    interval: 1.0
-    mediator-port: 1336
-    port: 1337
+    mediator-port: 1337
+    port: 1338
   NeighbourChannelController:
     commInterface: '*'
     interval: 1.0
   P2PUDP:
     digestion: NONE
-    interval: 1.0
     port: 1337
     target-address: 255.255.255.255
 drone:
-  descriptor: ''
+  descriptor: UAV1
   home: (0.0, 0.0)
-  id: -1
+  id: 1
 mission: mission.yml
 modules:
-  channels: []
+  channels:
+  - NeighbourChannelController
   communication:
   - LocalUDP
-  controllers: []
+  controllers:
+  - FlockController
   evaluators: []
   flight: FlightlessFlightController
   sensors: []

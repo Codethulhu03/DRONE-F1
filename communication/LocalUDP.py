@@ -16,7 +16,7 @@ class LocalUDP(UDPBase):
 
     AVAILABLE: bool = available
     """ Whether the Module is available (imports were successful) """
-    ARGS: dict[str, Any] = {**CommunicationInterface.ARGS, "port": 1337, "mediator-port": 1336}
+    ARGS: dict[str, Any] = {**CommunicationInterface.ARGS, "port": 1338, "mediator-port": 1337}
     """ Arguments for the configuration file """
 
     if AVAILABLE:
